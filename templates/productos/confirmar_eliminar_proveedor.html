@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Eliminar {{ producto.nombre }}{% endblock %}
-{% block page_title %}Eliminar Producto{% endblock %}
-{% block breadcrumb %}Módulos / Productos / Eliminar{% endblock %}
+{% block title %}Eliminar {{ proveedor.razon_social }}{% endblock %}
+{% block page_title %}Eliminar Proveedor{% endblock %}
+{% block breadcrumb %}Módulos / Proveedores / Eliminar{% endblock %}
 
 {% block content %}
 <div class="row" style="display:flex;justify-content:center">
   <div style="width:480px;max-width:100%">
     <div class="modal" style="position:static;transform:none;max-width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center">
       <div class="modal-body" style="padding:40px 24px">
-        <div style="font-size:48px;margin-bottom:16px;opacity:0.6">🗑️</div>
-        <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px">¿Eliminar "{{ producto.nombre }}"?</div>
+        <div style="font-size:48px;margin-bottom:16px;opacity:0.6">🏭</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px">¿Eliminar "{{ proveedor.razon_social }}"?</div>
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">
-          Esta acción no se puede deshacer. Se eliminará permanentemente el producto<br>
-          <strong style="color:var(--text-secondary)">"{{ producto.nombre }}"</strong> ({{ producto.categoria }}).
+          Esta acción no se puede deshacer. Se eliminará permanentemente el proveedor<br>
+          <strong style="color:var(--text-secondary)">"{{ proveedor.razon_social }}"</strong> ({{ proveedor.nit }}).
         </div>
         <form method="post" style="display:flex;gap:10px;justify-content:center">
           {% csrf_token %}
-          <a href="{% url 'productos:lista' %}" class="btn btn-ghost">Cancelar</a>
+          <a href="{% url 'productos:lista_proveedores' %}" class="btn btn-ghost">Cancelar</a>
           <button type="submit" class="btn btn-danger">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Eliminar

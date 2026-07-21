@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Proveedores{% endblock %}
+{% block page_title %}Proveedores{% endblock %}
+{% block breadcrumb %}Módulos / Proveedores{% endblock %}
+
+{% block content %}
+<div class="section-header" style="margin-bottom:20px">
+  <div>
+    <div class="section-title">Proveedores <small>{{ total_proveedores }} registro{{ total_proveedores|pluralize:'s' }}</small></div>
+  </div>
+  <a href="{% url 'productos:crear_proveedor' %}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nuevo Proveedor
+  </a>
+</div>
+
+<div class="table-card">
+  <div class="table-toolbar">
+    <div class="filter-group">
+      <a href="{% url 'productos:lista_proveedores' %}?filtro=all{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if filtro_actual == 'all' %}active{% endif %}">Todos</a>
+      <a href="{% url 'productos:lista_proveedores' %}?filtro=activo{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if filtro_actual == 'activo' %}active{% endif %}">Activos</a>
+      <a href="{% url 'productos:lista_proveedores' %}?filtro=inactivo{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if filtro_actual == 'inactivo' %}active{% endif %}">Inactivos</a>
+    </div>
+  </div>
+  <div style="overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Razón Social</th>
+          <th>NIT</th>
+          <th>Contacto</th>
+          <th>Teléfono</th>
+          <th>Categoría</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for proveedor in page_obj %}
+          <tr>
+            <td class="td-main">{{ proveedor.razon_social }}</td>
+            <td><span class="sku-tag">{{ proveedor.nit }}</span></td>
+            <td>{{ proveedor.contacto }}</td>
+            <td style="font-family:'DM Mono',monospace;font-size:12px">{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.categoria }}</td>
+            <td>
+              {% if proveedor.estado == 'activo' %}
+                <span class="badge badge-success">Activo</span>
+              {% else %}
+                <span class="badge badge-danger">Inactivo</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-group">
+                <a href="{% url 'productos:editar_proveedor' proveedor.pk %}" class="act-btn edit" title="Editar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </a>
+                <a href="{% url 'productos:eliminar_proveedor' proveedor.pk %}" class="act-btn del" title="Eliminar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="empty-state-icon">🏭</div>
+                <div class="empty-state-title">No hay proveedores</div>
+                {% if query %}
+                  <div class="empty-state-sub">No se encontraron proveedores para "{{ query }}"</div>
+                {% else %}
+                  <div class="empty-state-sub">No se encontraron proveedores con los filtros seleccionados</div>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <div class="page-info">
+      {% if page_obj.paginator.count > 0 %}
+        Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }} proveedores
+      {% else %}
+        Sin proveedores
+      {% endif %}
+    </div>
+    <div class="page-btns">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if filtro_actual != 'all' %}&filtro={{ filtro_actual }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="page-btn">‹</a>
+      {% else %}
+        <button class="page-btn" disabled>‹</button>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+          <a href="?page={{ num }}{% if filtro_actual != 'all' %}&filtro={{ filtro_actual }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="page-btn {% if num == page_obj.number %}active{% endif %}">{{ num }}</a>
+        {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
+          <span style="padding:0 4px;color:var(--text-muted)">...</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if filtro_actual != 'all' %}&filtro={{ filtro_actual }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="page-btn">›</a>
+      {% else %}
+        <button class="page-btn" disabled>›</button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

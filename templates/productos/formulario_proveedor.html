@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+{% block breadcrumb %}Módulos / Proveedores / {{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="row" style="display:flex;justify-content:center">
+  <div style="width:600px;max-width:100%">
+    <div class="modal" style="position:static;transform:none;max-width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.3)">
+      <div class="modal-header">
+        <div class="modal-title">{{ titulo }}</div>
+        <a href="{% url 'productos:lista_proveedores' %}" class="modal-close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </a>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="form-proveedor">
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="form-group form-col-full">
+              <label class="form-label" for="{{ form.razon_social.id_for_label }}">{{ form.razon_social.label }}</label>
+              {{ form.razon_social }}
+              {% if form.razon_social.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.razon_social.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="{{ form.nit.id_for_label }}">{{ form.nit.label }}</label>
+              {{ form.nit }}
+              {% if form.nit.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.nit.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+              {{ form.categoria }}
+              {% if form.categoria.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.categoria.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="{{ form.contacto.id_for_label }}">{{ form.contacto.label }}</label>
+              {{ form.contacto }}
+              {% if form.contacto.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.contacto.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="{{ form.telefono.id_for_label }}">{{ form.telefono.label }}</label>
+              {{ form.telefono }}
+              {% if form.telefono.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.telefono.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group form-col-full">
+              <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+              {{ form.email }}
+              {% if form.email.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group form-col-full">
+              <label class="form-label" for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+              {{ form.estado }}
+              {% if form.estado.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.estado.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'productos:lista_proveedores' %}" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" form="form-proveedor" class="btn btn-primary">{% if proveedor %}Guardar Cambios{% else %}Guardar Proveedor{% endif %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

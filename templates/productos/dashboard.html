@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Inicio{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Productos</div>
+    <div class="stat-value">{{ total_productos }}</div>
+    <div class="stat-change up">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+      Gestión activa
+    </div>
+    <div class="stat-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      </svg>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Stock Bajo</div>
+    <div class="stat-value" style="color:var(--danger)">{{ stock_bajo }}</div>
+    <div class="stat-change down">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+      Requieren atención
+    </div>
+    <div class="stat-icon" style="background:var(--danger-glow);border-color:rgba(224,90,78,0.2)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Proveedores</div>
+    <div class="stat-value">{{ total_proveedores }}</div>
+    <div class="stat-change up">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+      Registro activo
+    </div>
+    <div class="stat-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Valor Inventario</div>
+    <div class="stat-value" style="font-size:28px">${{ valor_total|floatformat:0 }}</div>
+    <div class="stat-change up">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+      Total en existencia
+    </div>
+    <div class="stat-icon" style="background:var(--success-glow);border-color:rgba(78,203,145,0.2)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="dash-bottom">
+  <div class="info-card">
+    <div class="info-card-title">
+      Productos Registrados
+    </div>
+    {% if productos_recientes %}
+      <div class="activity-list">
+        {% for p in productos_recientes %}
+          <div class="activity-item">
+            <div class="activity-dot" style="background:
+              {% if p.cantidad == 0 %}var(--danger)
+              {% elif p.cantidad <= p.stock_min %}var(--amber)
+              {% else %}var(--success)
+              {% endif %}">
+            </div>
+            <div>
+              <div class="activity-text"><strong>{{ p.nombre }}</strong></div>
+              <div class="activity-time">SKU-{{ p.pk|stringformat:"04d" }} · <span class="num">Stock: {{ p.cantidad }} uds</span> · <span class="num">${{ p.precio|floatformat:0 }}</span></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📦</div>
+        <div class="empty-state-title">Sin productos</div>
+        <div class="empty-state-sub">No hay productos registrados aún</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">
+      Proveedores Activos
+    </div>
+    {% if proveedores_activos %}
+      <div class="activity-list">
+        {% for p in proveedores_activos %}
+          <div class="activity-item">
+            <div class="activity-dot" style="background:{% if p.estado == 'activo' %}var(--success){% else %}var(--text-muted){% endif %}"></div>
+            <div>
+              <div class="activity-text"><strong>{{ p.razon_social }}</strong></div>
+              <div class="activity-time">{{ p.nit }} · {{ p.contacto }} · {{ p.telefono }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🏭</div>
+        <div class="empty-state-title">Sin proveedores</div>
+        <div class="empty-state-sub">No hay proveedores registrados aún</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
