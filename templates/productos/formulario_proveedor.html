@@ -6,62 +6,160 @@
 {% block breadcrumb %}Módulos / Proveedores / {{ titulo }}{% endblock %}
 
 {% block content %}
-<div class="row" style="display:flex;justify-content:center">
-  <div style="width:600px;max-width:100%">
-    <div class="modal" style="position:static;transform:none;max-width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.3)">
-      <div class="modal-header">
-        <div class="modal-title">{{ titulo }}</div>
-        <a href="{% url 'productos:lista_proveedores' %}" class="modal-close">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </a>
-      </div>
-      <div class="modal-body">
-        <form method="post" id="form-proveedor">
-          {% csrf_token %}
-          <div class="form-grid">
-            <div class="form-group form-col-full">
-              <label class="form-label" for="{{ form.razon_social.id_for_label }}">{{ form.razon_social.label }}</label>
-              {{ form.razon_social }}
-              {% if form.razon_social.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.razon_social.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="{{ form.nit.id_for_label }}">{{ form.nit.label }}</label>
-              {{ form.nit }}
-              {% if form.nit.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.nit.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
-              {{ form.categoria }}
-              {% if form.categoria.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.categoria.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="{{ form.contacto.id_for_label }}">{{ form.contacto.label }}</label>
-              {{ form.contacto }}
-              {% if form.contacto.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.contacto.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="{{ form.telefono.id_for_label }}">{{ form.telefono.label }}</label>
-              {{ form.telefono }}
-              {% if form.telefono.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.telefono.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group form-col-full">
-              <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-              {{ form.email }}
-              {% if form.email.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.email.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-group form-col-full">
-              <label class="form-label" for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
-              {{ form.estado }}
-              {% if form.estado.errors %}<div style="color:var(--danger);font-size:11px;margin-top:4px">{{ form.estado.errors.0 }}</div>{% endif %}
-            </div>
+<div style="max-width:640px;margin:0 auto">
+
+  {# ── PROGRESS STEPS ── #}
+  <div class="form-progress" style="margin-bottom:24px">
+    <div class="form-step active">
+      <span class="step-num">1</span>
+      Datos empresariales
+    </div>
+    <div class="form-step">
+      <span class="step-num">2</span>
+      Contacto
+    </div>
+    <div class="form-step">
+      <span class="step-num">3</span>
+      Estado
+    </div>
+  </div>
+
+  <div class="table-card" style="border-radius:var(--radius-lg);overflow:visible">
+    {# ── HEADER ── #}
+    <div style="padding:22px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--info-glow);border:1px solid rgba(106,184,232,0.2);display:flex;align-items:center;justify-content:center;color:var(--info)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;letter-spacing:-0.2px">{{ titulo }}</div>
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:1px">
+            {% if proveedor %}Actualizar información del proveedor{% else %}Registrar nuevo proveedor{% endif %}
           </div>
-        </form>
+        </div>
       </div>
-      <div class="modal-footer">
-        <a href="{% url 'productos:lista_proveedores' %}" class="btn btn-ghost">Cancelar</a>
-        <button type="submit" form="form-proveedor" class="btn btn-primary">{% if proveedor %}Guardar Cambios{% else %}Guardar Proveedor{% endif %}</button>
-      </div>
+      <a href="{% url 'productos:lista_proveedores' %}" class="modal-close" title="Cancelar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </a>
+    </div>
+
+    {# ── FORM BODY ── #}
+    <div style="padding:24px">
+      <form method="post" id="form-proveedor" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+
+          {# Razón Social #}
+          <div class="form-group form-col-full">
+            <label class="form-label" for="{{ form.razon_social.id_for_label }}">{{ form.razon_social.label }}</label>
+            {{ form.razon_social }}
+            {% if form.razon_social.errors %}<div class="form-error">⚠ {{ form.razon_social.errors.0 }}</div>{% endif %}
+          </div>
+
+          {# NIT #}
+          <div class="form-group">
+            <label class="form-label" for="{{ form.nit.id_for_label }}">{{ form.nit.label }}</label>
+            {{ form.nit }}
+            {% if form.nit.errors %}<div class="form-error">⚠ {{ form.nit.errors.0 }}</div>{% endif %}
+            <div class="form-hint">Número de Identificación Tributaria</div>
+          </div>
+
+          {# Categoría #}
+          <div class="form-group">
+            <label class="form-label" for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+            {{ form.categoria }}
+            {% if form.categoria.errors %}<div class="form-error">⚠ {{ form.categoria.errors.0 }}</div>{% endif %}
+          </div>
+
+          {# Contacto #}
+          <div class="form-group">
+            <label class="form-label" for="{{ form.contacto.id_for_label }}">{{ form.contacto.label }}</label>
+            {{ form.contacto }}
+            {% if form.contacto.errors %}<div class="form-error">⚠ {{ form.contacto.errors.0 }}</div>{% endif %}
+          </div>
+
+          {# Teléfono #}
+          <div class="form-group">
+            <label class="form-label" for="{{ form.telefono.id_for_label }}">{{ form.telefono.label }}</label>
+            {{ form.telefono }}
+            {% if form.telefono.errors %}<div class="form-error">⚠ {{ form.telefono.errors.0 }}</div>{% endif %}
+          </div>
+
+          {# Email #}
+          <div class="form-group form-col-full">
+            <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="form-error">⚠ {{ form.email.errors.0 }}</div>{% endif %}
+          </div>
+
+          {# Estado #}
+          <div class="form-group form-col-full">
+            <label class="form-label" for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+            {{ form.estado }}
+            {% if form.estado.errors %}<div class="form-error">⚠ {{ form.estado.errors.0 }}</div>{% endif %}
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    {# ── FOOTER ── #}
+    <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--bg-secondary);border-radius:0 0 var(--radius-lg) var(--radius-lg)">
+      <a href="{% url 'productos:lista_proveedores' %}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" form="form-proveedor" class="btn btn-primary ripple-host" id="submit-btn-prov">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        {% if proveedor %}Guardar Cambios{% else %}Guardar Proveedor{% endif %}
+      </button>
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  /* ── APPLY FORM-INPUT CLASS ── */
+  document.querySelectorAll('#form-proveedor input, #form-proveedor select, #form-proveedor textarea').forEach(function(el) {
+    el.classList.add('form-input');
+  });
+
+  /* ── REAL-TIME VALIDATION ── */
+  function validateField(el) {
+    if(!el.value.trim()) { el.classList.remove('valid','invalid'); return; }
+    var ok = true;
+    if(el.type === 'email') ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+    else if(el.required || el.value.trim()) ok = el.value.trim().length > 0;
+    el.classList.toggle('valid', ok);
+    el.classList.toggle('invalid', !ok);
+  }
+  document.querySelectorAll('#form-proveedor input, #form-proveedor select').forEach(function(el) {
+    el.addEventListener('blur', function() { validateField(this); });
+    el.addEventListener('input', function() { if(this.classList.contains('invalid')) validateField(this); });
+  });
+
+  /* ── PROGRESS STEPS ── */
+  var razon    = document.querySelector('[name="razon_social"]');
+  var contacto = document.querySelector('[name="contacto"]');
+  var estado   = document.querySelector('[name="estado"]');
+  var steps    = document.querySelectorAll('.form-step');
+
+  function updateSteps() {
+    var s1 = razon && razon.value.trim().length > 0;
+    var s2 = contacto && contacto.value.trim().length > 0;
+    var s3 = estado && estado.value.trim().length > 0;
+    if(steps[0]) { steps[0].classList.toggle('done', s1); steps[0].classList.toggle('active', !s1); }
+    if(steps[1]) { steps[1].classList.toggle('done', s1 && s2); steps[1].classList.toggle('active', s1 && !s2); }
+    if(steps[2]) { steps[2].classList.toggle('done', s1 && s2 && s3); steps[2].classList.toggle('active', s1 && s2 && !s3); }
+  }
+  [razon, contacto, estado].forEach(function(el) { if(el) el.addEventListener('input', updateSteps); });
+  updateSteps();
+
+  /* ── SUBMIT LOADING ── */
+  document.getElementById('form-proveedor').addEventListener('submit', function() {
+    var btn = document.getElementById('submit-btn-prov');
+    if(btn) { btn.disabled = true; }
+  });
+})();
+</script>
 {% endblock %}

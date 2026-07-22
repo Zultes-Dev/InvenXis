@@ -6,99 +6,75 @@
 {% block breadcrumb %}Módulos / Reportes / {{ reporte_titulo }}{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.min.css">
 <style>
-.report-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.report-date {
-  font-size: 11px;
-  font-family: 'DM Mono', monospace;
-  color: var(--text-muted);
-}
-.chart-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 28px;
-}
+.report-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
+.report-date { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 .chart-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 22px 24px;
+  transition: var(--transition);
 }
-.chart-card-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-  letter-spacing: -0.1px;
-}
-.chart-wrap {
-  position: relative;
-  height: 220px;
-}
-.summary-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
+.chart-card:hover { border-color: var(--border-light); box-shadow: var(--shadow-sm); }
+.chart-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.chart-card-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.1px; }
+.chart-card-sub { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+.chart-wrap { position: relative; height: 220px; }
+.summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
 .summary-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px 20px;
-  text-align: center;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 16px 18px; text-align: center; transition: var(--transition);
 }
-.summary-value {
-  font-family: 'DM Serif Display', serif;
-  font-size: 28px;
-  color: var(--text-primary);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.summary-label {
-  font-size: 9px;
-  font-family: 'DM Mono', monospace;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
+.summary-item:hover { transform: translateY(-2px); border-color: var(--border-light); }
+.summary-value { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; margin-bottom: 6px; }
+.summary-label { font-size: 9px; font-family: 'DM Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
 .card-full { grid-column: 1 / -1; }
-.report-table-scroll { overflow-x: auto; margin-top: 8px; }
+.report-table-scroll { overflow-x: auto; }
+@media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: 1fr 1fr; } }
+@media print {
+  .report-header .btn { display: none !important; }
+  .chart-card, .summary-item, .table-card { break-inside: avoid; }
+  body { font-size: 12px; }
+}
 </style>
 
 <div class="report-header">
   <div>
     <div class="section-title">{{ reporte_titulo }}</div>
-    <div class="report-date">Generado el {{ now|date:"d/m/Y H:i" }}</div>
+    <div class="report-date">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Generado el {{ now|date:"d/m/Y H:i" }}
+    </div>
   </div>
-  <div style="display:flex;gap:8px">
-    <a href="{% url 'productos:reportes' %}" class="btn btn-ghost btn-sm">Volver</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a href="{% url 'productos:reportes' %}" class="btn btn-ghost btn-sm">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Volver
+    </a>
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Imprimir
+    </button>
     {% if reporte_tipo == 'inventario' %}
-      <a href="{% url 'productos:reporte_inventario_excel' %}" class="btn btn-primary btn-sm">
+      <a href="{% url 'productos:reporte_inventario_excel' %}" class="btn btn-primary btn-sm ripple-host">
     {% elif reporte_tipo == 'proveedores' %}
-      <a href="{% url 'productos:reporte_proveedores_excel' %}" class="btn btn-primary btn-sm">
+      <a href="{% url 'productos:reporte_proveedores_excel' %}" class="btn btn-primary btn-sm ripple-host">
     {% elif reporte_tipo == 'completo' %}
-      <a href="{% url 'productos:reporte_completo_excel' %}" class="btn btn-primary btn-sm">
+      <a href="{% url 'productos:reporte_completo_excel' %}" class="btn btn-primary btn-sm ripple-host">
     {% endif %}
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Descargar Excel
     </a>
   </div>
 </div>
 
+{# ── INVENTARIO ── #}
 {% if reporte_tipo == 'inventario' %}
 <div class="summary-bar">
   <div class="summary-item">
-    <div class="summary-value" style="color:var(--text-primary)">{{ total_productos }}</div>
+    <div class="summary-value">{{ total_productos }}</div>
     <div class="summary-label">Total Productos</div>
   </div>
   <div class="summary-item">
@@ -117,15 +93,24 @@
 
 <div class="chart-grid">
   <div class="chart-card card-full">
-    <div class="chart-card-title">Distribución por Categoría</div>
+    <div class="chart-card-header">
+      <div class="chart-card-title">Distribución por Categoría</div>
+      <div class="chart-card-sub">Cantidad de productos</div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-categoria"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-card-title">Estado del Stock</div>
+    <div class="chart-card-header">
+      <div class="chart-card-title">Estado del Stock</div>
+      <div class="chart-card-sub">Distribución porcentual</div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-estado"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-card-title">Valor por Categoría</div>
+    <div class="chart-card-header">
+      <div class="chart-card-title">Valor por Categoría</div>
+      <div class="chart-card-sub">En pesos</div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-valor"></canvas></div>
   </div>
 </div>
@@ -133,19 +118,17 @@
 <div class="table-card">
   <div class="table-toolbar">
     <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Detalle de Productos</div>
-    <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted)">Valor total: <strong style="color:var(--amber);font-family:'DM Serif Display',serif;font-size:16px">${{ total_valor|floatformat:0 }}</strong></span>
+    <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted)">
+      Valor total:
+      <strong style="color:var(--amber);font-family:'DM Serif Display',serif;font-size:16px">${{ total_valor|floatformat:0 }}</strong>
+    </span>
   </div>
   <div class="report-table-scroll">
     <table>
       <thead>
         <tr>
-          <th>Producto</th>
-          <th>Categoría</th>
-          <th>Stock</th>
-          <th>Stock Mín.</th>
-          <th>Precio</th>
-          <th>Valor Total</th>
-          <th>Estado</th>
+          <th>Producto</th><th>Categoría</th><th>Stock</th>
+          <th>Stock Mín.</th><th>Precio</th><th>Valor Total</th><th>Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -154,17 +137,13 @@
             <td class="td-main">{{ p.nombre }}</td>
             <td><span class="sku-tag">{{ p.categoria }}</span></td>
             <td style="font-family:'DM Mono',monospace">{{ p.cantidad }}</td>
-            <td style="font-family:'DM Mono',monospace">{{ p.stock_min }}</td>
-            <td style="font-family:'DM Mono',monospace;color:var(--amber)">${{ p.precio|floatformat:0 }}</td>
-            <td style="font-family:'DM Mono',monospace">${{ p.cantidad|floatformat:0 }}</td>
+            <td style="font-family:'DM Mono',monospace;color:var(--text-muted)">{{ p.stock_min }}</td>
+            <td class="td-price">${{ p.precio|floatformat:0 }}</td>
+            <td style="font-family:'DM Mono',monospace;color:var(--success)">${{ p.cantidad|floatformat:0 }}</td>
             <td>
-              {% if p.cantidad == 0 %}
-                <span class="badge badge-danger">Sin Stock</span>
-              {% elif p.cantidad <= p.stock_min %}
-                <span class="badge badge-warning">Stock Bajo</span>
-              {% else %}
-                <span class="badge badge-success">Normal</span>
-              {% endif %}
+              {% if p.cantidad == 0 %}<span class="badge badge-danger">Sin Stock</span>
+              {% elif p.cantidad <= p.stock_min %}<span class="badge badge-warning">Stock Bajo</span>
+              {% else %}<span class="badge badge-success">Normal</span>{% endif %}
             </td>
           </tr>
         {% empty %}
@@ -175,10 +154,11 @@
   </div>
 </div>
 
+{# ── PROVEEDORES ── #}
 {% elif reporte_tipo == 'proveedores' %}
-<div class="summary-bar">
+<div class="summary-bar" style="grid-template-columns:repeat(3,1fr)">
   <div class="summary-item">
-    <div class="summary-value" style="color:var(--text-primary)">{{ total_proveedores }}</div>
+    <div class="summary-value">{{ total_proveedores }}</div>
     <div class="summary-label">Total Proveedores</div>
   </div>
   <div class="summary-item">
@@ -193,7 +173,10 @@
 
 <div class="chart-grid">
   <div class="chart-card card-full">
-    <div class="chart-card-title">Proveedores por Categoría</div>
+    <div class="chart-card-header">
+      <div class="chart-card-title">Proveedores por Categoría</div>
+      <div class="chart-card-sub">Distribución</div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-categoria"></canvas></div>
   </div>
 </div>
@@ -206,18 +189,16 @@
     <table>
       <thead>
         <tr>
-          <th>Razón Social</th>
-          <th>NIT</th>
-          <th>Categoría</th>
-          <th>Contacto</th>
-          <th>Teléfono</th>
-          <th>Email</th>
-          <th>Estado</th>
+          <th></th><th>Razón Social</th><th>NIT</th><th>Categoría</th>
+          <th>Contacto</th><th>Teléfono</th><th>Email</th><th>Estado</th>
         </tr>
       </thead>
       <tbody>
         {% for p in proveedores %}
           <tr>
+            <td style="padding:10px 8px 10px 18px">
+              <div class="avatar-circle {% if p.estado == 'activo' %}av-info{% else %}av-muted{% endif %}">{{ p.razon_social|first|upper }}</div>
+            </td>
             <td class="td-main">{{ p.razon_social }}</td>
             <td><span class="sku-tag">{{ p.nit }}</span></td>
             <td>{{ p.categoria }}</td>
@@ -225,62 +206,39 @@
             <td style="font-family:'DM Mono',monospace;font-size:12px">{{ p.telefono }}</td>
             <td style="font-size:12px">{{ p.email }}</td>
             <td>
-              {% if p.estado == 'activo' %}
-                <span class="badge badge-success">Activo</span>
-              {% else %}
-                <span class="badge badge-danger">Inactivo</span>
-              {% endif %}
+              {% if p.estado == 'activo' %}<span class="badge badge-success">Activo</span>
+              {% else %}<span class="badge badge-muted">Inactivo</span>{% endif %}
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-title">Sin proveedores</div></div></td></tr>
+          <tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-title">Sin proveedores</div></div></td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
 
+{# ── COMPLETO ── #}
 {% elif reporte_tipo == 'completo' %}
 <div class="summary-bar">
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--text-primary)">{{ total_productos }}</div>
-    <div class="summary-label">Total Productos</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--success)">{{ stock_normal }}</div>
-    <div class="summary-label">Stock Normal</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--amber)">{{ stock_bajo }}</div>
-    <div class="summary-label">Stock Bajo</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--danger)">{{ sin_stock }}</div>
-    <div class="summary-label">Sin Stock</div>
-  </div>
+  <div class="summary-item"><div class="summary-value">{{ total_productos }}</div><div class="summary-label">Productos</div></div>
+  <div class="summary-item"><div class="summary-value" style="color:var(--success)">{{ stock_normal }}</div><div class="summary-label">Stock Normal</div></div>
+  <div class="summary-item"><div class="summary-value" style="color:var(--amber)">{{ stock_bajo }}</div><div class="summary-label">Stock Bajo</div></div>
+  <div class="summary-item"><div class="summary-value" style="color:var(--danger)">{{ sin_stock }}</div><div class="summary-label">Sin Stock</div></div>
 </div>
-<div class="summary-bar" style="grid-template-columns:repeat(3,1fr);margin-top:-12px">
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--text-primary)">{{ total_proveedores }}</div>
-    <div class="summary-label">Total Proveedores</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--success)">{{ proveedores_activos }}</div>
-    <div class="summary-label">Activos</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-value" style="color:var(--danger)">{{ proveedores_inactivos }}</div>
-    <div class="summary-label">Inactivos</div>
-  </div>
+<div class="summary-bar" style="grid-template-columns:repeat(3,1fr);margin-top:-8px">
+  <div class="summary-item"><div class="summary-value">{{ total_proveedores }}</div><div class="summary-label">Proveedores</div></div>
+  <div class="summary-item"><div class="summary-value" style="color:var(--success)">{{ proveedores_activos }}</div><div class="summary-label">Activos</div></div>
+  <div class="summary-item"><div class="summary-value" style="color:var(--danger)">{{ proveedores_inactivos }}</div><div class="summary-label">Inactivos</div></div>
 </div>
 
 <div class="chart-grid">
   <div class="chart-card">
-    <div class="chart-card-title">Estado del Stock</div>
+    <div class="chart-card-header"><div class="chart-card-title">Estado del Stock</div><div class="chart-card-sub">Distribución</div></div>
     <div class="chart-wrap"><canvas id="chart-estado"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-card-title">Proveedores por Estado</div>
+    <div class="chart-card-header"><div class="chart-card-title">Proveedores por Estado</div><div class="chart-card-sub">Activos vs inactivos</div></div>
     <div class="chart-wrap"><canvas id="chart-prov-estado"></canvas></div>
   </div>
 </div>
@@ -292,47 +250,47 @@
   </div>
   <div class="report-table-scroll">
     <table>
-      <thead>
-        <tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Precio</th><th>Estado</th></tr>
-      </thead>
+      <thead><tr><th></th><th>Producto</th><th>Categoría</th><th>Stock</th><th>Precio</th><th>Estado</th></tr></thead>
       <tbody>
         {% for p in productos %}
           <tr>
+            <td style="padding:10px 8px 10px 18px">
+              <div class="avatar-circle {% if p.cantidad == 0 %}av-danger{% elif p.cantidad <= p.stock_min %}av-muted{% else %}av-success{% endif %}">{{ p.nombre|first|upper }}</div>
+            </td>
             <td class="td-main">{{ p.nombre }}</td>
             <td><span class="sku-tag">{{ p.categoria }}</span></td>
             <td style="font-family:'DM Mono',monospace">{{ p.cantidad }} uds.</td>
-            <td style="font-family:'DM Mono',monospace;color:var(--amber)">${{ p.precio|floatformat:0 }}</td>
+            <td class="td-price">${{ p.precio|floatformat:0 }}</td>
             <td>
               {% if p.cantidad == 0 %}<span class="badge badge-danger">Sin Stock</span>
               {% elif p.cantidad <= p.stock_min %}<span class="badge badge-warning">Stock Bajo</span>
               {% else %}<span class="badge badge-success">Normal</span>{% endif %}
             </td>
           </tr>
-        {% empty %}<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Sin productos</div></div></td></tr>{% endfor %}
+        {% empty %}<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-title">Sin productos</div></div></td></tr>{% endfor %}
       </tbody>
     </table>
   </div>
 </div>
 
 <div class="table-card">
-  <div class="table-toolbar">
-    <div style="font-size:12px;font-weight:600;color:var(--text-primary)">Proveedores</div>
-  </div>
+  <div class="table-toolbar"><div style="font-size:12px;font-weight:600;color:var(--text-primary)">Proveedores</div></div>
   <div class="report-table-scroll">
     <table>
-      <thead>
-        <tr><th>Razón Social</th><th>NIT</th><th>Categoría</th><th>Contacto</th><th>Estado</th></tr>
-      </thead>
+      <thead><tr><th></th><th>Razón Social</th><th>NIT</th><th>Categoría</th><th>Contacto</th><th>Estado</th></tr></thead>
       <tbody>
         {% for p in proveedores %}
           <tr>
+            <td style="padding:10px 8px 10px 18px">
+              <div class="avatar-circle {% if p.estado == 'activo' %}av-info{% else %}av-muted{% endif %}">{{ p.razon_social|first|upper }}</div>
+            </td>
             <td class="td-main">{{ p.razon_social }}</td>
             <td><span class="sku-tag">{{ p.nit }}</span></td>
             <td>{{ p.categoria }}</td>
             <td>{{ p.contacto }}</td>
-            <td>{% if p.estado == 'activo' %}<span class="badge badge-success">Activo</span>{% else %}<span class="badge badge-danger">Inactivo</span>{% endif %}</td>
+            <td>{% if p.estado == 'activo' %}<span class="badge badge-success">Activo</span>{% else %}<span class="badge badge-muted">Inactivo</span>{% endif %}</td>
           </tr>
-        {% empty %}<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-title">Sin proveedores</div></div></td></tr>{% endfor %}
+        {% empty %}<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-title">Sin proveedores</div></div></td></tr>{% endfor %}
       </tbody>
     </table>
   </div>
@@ -341,124 +299,139 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
-Chart.defaults.color = '#8a8f96';
-Chart.defaults.borderColor = '#252a2f';
-Chart.defaults.font.family = "'DM Mono', monospace";
+/* ── CHART THEME HELPER ── */
+function getChartColors(theme) {
+  return {
+    text:   theme === 'dark' ? '#8a909b' : '#8a8f96',
+    border: theme === 'dark' ? '#2c3239' : '#e0dedd',
+    grid:   theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)',
+  };
+}
 
-{% if reporte_tipo == 'inventario' or reporte_tipo == 'completo' %}
+var theme = localStorage.getItem('theme') || 'dark';
+var c = getChartColors(theme);
+
+Chart.defaults.color      = c.text;
+Chart.defaults.borderColor= c.border;
+Chart.defaults.font.family= "'DM Mono', monospace";
+Chart.defaults.font.size  = 11;
+
+var AMBER   = '#e8a230';
+var SUCCESS = '#5ed8a0';
+var DANGER  = '#e86a5e';
+var INFO    = '#6ab8e8';
+var PALETTE = [AMBER, SUCCESS, INFO, DANGER, '#a78bfa', '#f472b6', '#34d399', '#fb923c'];
+
+/* ── COMMON CHART OPTIONS ── */
+function barOpts(extra) {
+  return Object.assign({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'var(--bg-elevated)', titleColor: 'var(--text-primary)', bodyColor: 'var(--text-secondary)', borderColor: 'var(--border-light)', borderWidth: 1, padding: 10, cornerRadius: 8, displayColors: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: c.grid }, border: { display: false } },
+      x: { grid: { display: false }, border: { display: false } }
+    }
+  }, extra || {});
+}
+
+function donutOpts(pos) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: {
+      legend: { position: pos || 'bottom', labels: { padding: 14, usePointStyle: true, pointStyleWidth: 8 } },
+      tooltip: { backgroundColor: 'var(--bg-elevated)', titleColor: 'var(--text-primary)', bodyColor: 'var(--text-secondary)', borderColor: 'var(--border-light)', borderWidth: 1, padding: 10, cornerRadius: 8 }
+    }
+  };
+}
+
+var registeredCharts = [];
+
 {% if reporte_tipo == 'inventario' %}
-var categorias = {{ categorias_labels|safe }};
-var catCounts = {{ categorias_counts|safe }};
-var catValores = {{ categorias_valores|safe }};
+var categorias  = {{ categorias_labels|safe }};
+var catCounts   = {{ categorias_counts|safe }};
+var catValores  = {{ categorias_valores|safe }};
 
-new Chart(document.getElementById('chart-categoria'), {
+registeredCharts.push(new Chart(document.getElementById('chart-categoria'), {
   type: 'bar',
   data: {
     labels: categorias,
-    datasets: [{
-      label: 'Productos',
-      data: catCounts,
-      backgroundColor: '#e8a230',
-      borderRadius: 4
-    }]
+    datasets: [{ label: 'Productos', data: catCounts,
+      backgroundColor: PALETTE.slice(0, categorias.length),
+      borderRadius: 6, borderSkipped: false }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, grid: { color: '#252a2f' } },
-      x: { grid: { display: false } }
+  options: barOpts()
+}));
+
+registeredCharts.push(new Chart(document.getElementById('chart-valor'), {
+  type: 'pie',
+  data: { labels: categorias, datasets: [{ data: catValores, backgroundColor: PALETTE.slice(0, categorias.length), borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'right', labels: { padding: 14, usePointStyle: true } },
+      tooltip: { backgroundColor: 'var(--bg-elevated)', titleColor: 'var(--text-primary)', bodyColor: 'var(--text-secondary)', borderColor: 'var(--border-light)', borderWidth: 1, padding: 10, cornerRadius: 8 }
     }
   }
-});
+}));
 
-new Chart(document.getElementById('chart-valor'), {
-  type: 'pie',
-  data: {
-    labels: categorias,
-    datasets: [{
-      data: catValores,
-      backgroundColor: ['#e8a230', '#4ecb91', '#5aa8e0', '#e05a4e', '#8a8f96'],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'right', labels: { padding: 12, font: { size: 10 } } } }
-  }
-});
-{% endif %}
-
-new Chart(document.getElementById('chart-estado'), {
+registeredCharts.push(new Chart(document.getElementById('chart-estado'), {
   type: 'doughnut',
   data: {
-    labels: ['Stock Normal ({{ stock_normal }})', 'Stock Bajo ({{ stock_bajo }})', 'Sin Stock ({{ sin_stock }})'],
-    datasets: [{
-      data: [{{ stock_normal }}, {{ stock_bajo }}, {{ sin_stock }}],
-      backgroundColor: ['#4ecb91', '#e8a230', '#e05a4e'],
-      borderWidth: 0
-    }]
+    labels: ['Normal ({{ stock_normal }})', 'Bajo ({{ stock_bajo }})', 'Sin Stock ({{ sin_stock }})'],
+    datasets: [{ data: [{{ stock_normal }}, {{ stock_bajo }}, {{ sin_stock }}], backgroundColor: [SUCCESS, AMBER, DANGER], borderWidth: 0, hoverOffset: 6 }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 12, font: { size: 10 } } }
-    }
-  }
-});
+  options: donutOpts('bottom')
+}));
 {% endif %}
 
 {% if reporte_tipo == 'proveedores' %}
 var categorias = {{ categorias_labels|safe }};
-var catCounts = {{ categorias_counts|safe }};
+var catCounts  = {{ categorias_counts|safe }};
 
-new Chart(document.getElementById('chart-categoria'), {
+registeredCharts.push(new Chart(document.getElementById('chart-categoria'), {
   type: 'bar',
   data: {
     labels: categorias,
-    datasets: [{
-      label: 'Proveedores',
-      data: catCounts,
-      backgroundColor: '#e8a230',
-      borderRadius: 4
-    }]
+    datasets: [{ label: 'Proveedores', data: catCounts,
+      backgroundColor: PALETTE.slice(0, categorias.length),
+      borderRadius: 6, borderSkipped: false }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, grid: { color: '#252a2f' } },
-      x: { grid: { display: false } }
-    }
-  }
-});
+  options: barOpts()
+}));
 {% endif %}
 
 {% if reporte_tipo == 'completo' %}
-new Chart(document.getElementById('chart-prov-estado'), {
+registeredCharts.push(new Chart(document.getElementById('chart-estado'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Normal ({{ stock_normal }})', 'Bajo ({{ stock_bajo }})', 'Sin Stock ({{ sin_stock }})'],
+    datasets: [{ data: [{{ stock_normal }}, {{ stock_bajo }}, {{ sin_stock }}], backgroundColor: [SUCCESS, AMBER, DANGER], borderWidth: 0, hoverOffset: 6 }]
+  },
+  options: donutOpts('bottom')
+}));
+
+registeredCharts.push(new Chart(document.getElementById('chart-prov-estado'), {
   type: 'doughnut',
   data: {
     labels: ['Activos ({{ proveedores_activos }})', 'Inactivos ({{ proveedores_inactivos }})'],
-    datasets: [{
-      data: [{{ proveedores_activos }}, {{ proveedores_inactivos }}],
-      backgroundColor: ['#4ecb91', '#e05a4e'],
-      borderWidth: 0
-    }]
+    datasets: [{ data: [{{ proveedores_activos }}, {{ proveedores_inactivos }}], backgroundColor: [SUCCESS, DANGER], borderWidth: 0, hoverOffset: 6 }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 12, font: { size: 10 } } }
-    }
-  }
-});
+  options: donutOpts('bottom')
+}));
 {% endif %}
+
+/* ── DYNAMIC THEME RE-COLOR ── */
+window.updateChartTheme = function(newTheme) {
+  var nc = getChartColors(newTheme);
+  Chart.defaults.color       = nc.text;
+  Chart.defaults.borderColor = nc.border;
+  registeredCharts.forEach(function(ch) {
+    if(ch.options.scales) {
+      Object.values(ch.options.scales).forEach(function(sc) {
+        if(sc.grid) sc.grid.color = nc.grid;
+      });
+    }
+    ch.update();
+  });
+};
 </script>
 {% endblock %}

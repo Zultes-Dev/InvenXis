@@ -1,5 +1,5 @@
 """
-Django settings for inventario project.
+Django settings for config project.
 Sistema de Gestión de Inventarios — InvPro
 """
 
@@ -33,7 +33,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'inventario.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -50,7 +50,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'inventario.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─── MySQL 8 (Laragon) ─────────────────────────────────────
 # Requisito: tener Laragon corriendo con MySQL 8 activo.

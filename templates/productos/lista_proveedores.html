@@ -8,9 +8,9 @@
 {% block content %}
 <div class="section-header" style="margin-bottom:20px">
   <div>
-    <div class="section-title">Proveedores <small>{{ total_proveedores }} registro{{ total_proveedores|pluralize:'s' }}</small></div>
+    <div class="section-title">Gestión de Proveedores <small>{{ total_proveedores }} registro{{ total_proveedores|pluralize:'s' }}</small></div>
   </div>
-  <a href="{% url 'productos:crear_proveedor' %}" class="btn btn-primary">
+  <a href="{% url 'productos:crear_proveedor' %}" class="btn btn-primary ripple-host">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Nuevo Proveedor
   </a>
@@ -23,41 +23,68 @@
       <a href="{% url 'productos:lista_proveedores' %}?filtro=activo{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if filtro_actual == 'activo' %}active{% endif %}">Activos</a>
       <a href="{% url 'productos:lista_proveedores' %}?filtro=inactivo{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if filtro_actual == 'inactivo' %}active{% endif %}">Inactivos</a>
     </div>
+    <div style="display:flex;align-items:center;gap:7px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;height:33px;width:180px;transition:var(--transition)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="provSearch" placeholder="Filtrar tabla..." style="background:none;border:none;outline:none;color:var(--text-primary);font-family:'Syne',sans-serif;font-size:12.5px;width:100%">
+    </div>
   </div>
+
   <div style="overflow-x: auto;">
     <table>
       <thead>
         <tr>
+          <th style="width:36px"></th>
           <th>Razón Social</th>
           <th>NIT</th>
           <th>Contacto</th>
           <th>Teléfono</th>
           <th>Categoría</th>
+          <th>Email</th>
           <th>Estado</th>
           <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="prov-tbody">
         {% for proveedor in page_obj %}
-          <tr>
+          <tr data-name="{{ proveedor.razon_social }}" data-nit="{{ proveedor.nit }}">
+            <td style="padding:10px 8px 10px 18px">
+              <div class="avatar-circle {% if proveedor.estado == 'activo' %}av-info{% else %}av-muted{% endif %}">
+                {{ proveedor.razon_social|first|upper }}
+              </div>
+            </td>
             <td class="td-main">{{ proveedor.razon_social }}</td>
             <td><span class="sku-tag">{{ proveedor.nit }}</span></td>
             <td>{{ proveedor.contacto }}</td>
-            <td style="font-family:'DM Mono',monospace;font-size:12px">{{ proveedor.telefono }}</td>
-            <td>{{ proveedor.categoria }}</td>
+            <td>
+              <a href="tel:{{ proveedor.telefono }}" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:var(--text-secondary);font-family:'DM Mono',monospace;font-size:12px">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.4a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.72 17z"/></svg>
+                {{ proveedor.telefono }}
+              </a>
+            </td>
+            <td><span class="sku-tag">{{ proveedor.categoria }}</span></td>
+            <td>
+              {% if proveedor.email %}
+                <a href="mailto:{{ proveedor.email }}" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:var(--text-secondary);font-size:12px;max-width:140px">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ proveedor.email }}</span>
+                </a>
+              {% else %}
+                <span style="color:var(--text-muted);font-size:12px">—</span>
+              {% endif %}
+            </td>
             <td>
               {% if proveedor.estado == 'activo' %}
                 <span class="badge badge-success">Activo</span>
               {% else %}
-                <span class="badge badge-danger">Inactivo</span>
+                <span class="badge badge-muted">Inactivo</span>
               {% endif %}
             </td>
             <td>
               <div class="action-group">
-                <a href="{% url 'productos:editar_proveedor' proveedor.pk %}" class="act-btn edit" title="Editar">
+                <a href="{% url 'productos:editar_proveedor' proveedor.pk %}" class="act-btn edit" data-tip="Editar">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </a>
-                <a href="{% url 'productos:eliminar_proveedor' proveedor.pk %}" class="act-btn del" title="Eliminar">
+                <a href="{% url 'productos:eliminar_proveedor' proveedor.pk %}" class="act-btn del" data-tip="Eliminar">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                 </a>
               </div>
@@ -65,7 +92,7 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="7">
+            <td colspan="9">
               <div class="empty-state">
                 <div class="empty-state-icon">🏭</div>
                 <div class="empty-state-title">No hay proveedores</div>
@@ -101,7 +128,7 @@
         {% if num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
           <a href="?page={{ num }}{% if filtro_actual != 'all' %}&filtro={{ filtro_actual }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="page-btn {% if num == page_obj.number %}active{% endif %}">{{ num }}</a>
         {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
-          <span style="padding:0 4px;color:var(--text-muted)">...</span>
+          <span style="padding:0 4px;color:var(--text-muted);display:flex;align-items:center">…</span>
         {% endif %}
       {% endfor %}
 
@@ -113,4 +140,20 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  var inp = document.getElementById('provSearch');
+  var tbody = document.getElementById('prov-tbody');
+  if(!inp || !tbody) return;
+  inp.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    tbody.querySelectorAll('tr[data-name]').forEach(function(r) {
+      var name = (r.dataset.name || '').toLowerCase();
+      var nit  = (r.dataset.nit  || '').toLowerCase();
+      r.style.display = (!q || name.includes(q) || nit.includes(q)) ? '' : 'none';
+    });
+  });
+})();
+</script>
 {% endblock %}
