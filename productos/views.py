@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.db.models import Sum, F, Q
-from .models import Producto, Proveedor
+from .models import Producto, Proveedor, Pedido
 from .forms import ProductoForm, ProveedorForm
 
 ITEMS_PER_PAGE = 10
@@ -79,6 +79,20 @@ def detalle_producto(request, pk):
     ctx = _get_base_context(request)
     ctx.update({'producto': producto})
     return render(request, 'productos/detalle_producto.html', ctx)
+
+
+@login_required
+def detalle_proveedor(request, pk):
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    productos = Producto.objects.filter(proveedor=proveedor)
+    pedidos = proveedor.pedidos.all()
+    ctx = _get_base_context(request)
+    ctx.update({
+        'proveedor': proveedor,
+        'productos_count': productos.count(),
+        'pedidos': pedidos,
+    })
+    return render(request, 'productos/detalle_proveedor.html', ctx)
 
 
 @login_required

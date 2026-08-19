@@ -3,33 +3,53 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.egg-info/
+*.egg
 dist/
 build/
-*.egg
+.pytest_cache/
 
-# Virtual environment
+# Virtual environments
 .venv/
 venv/
 env/
 
-# Django
+# Django media/db
 *.sqlite3
 db.sqlite3
 local_settings.py
+staticfiles/
+media/
 
-# IDE
+# Logs
+logs/
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+
+# Node.js
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Experimental servers (not part of the published project)
+backend/
+invensoft-express/
+
+# Local tooling
+.opencode/
+
+# Environment files (never commit real secrets)
+.env
+*.env.local
+.env.*
+!.env.example
+
+# IDE / OS
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
-.DS_Store
 Thumbs.db
-
-# Environment
-.env
-*.env.local
-
-# Migrations (keep in VCS but exclude __pycache__)
-**/migrations/__pycache__/
+.DS_Store
