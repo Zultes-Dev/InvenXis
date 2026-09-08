@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="859" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#555"/></marker></defs>
+<text x="30" y="32" font-size="22" font-weight="bold" fill="#00843D">InvenXis — Diagrama Entidad-Relación</text>
+<text x="30" y="52" font-size="12" fill="#666">Generado por introspección de los modelos Django (docs/ev02/generar_er.py)</text>
+<path d="M880,165 C605,165 605,136 330,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="605" y="147" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 proveedor</text>
+<path d="M880,406 C605,406 605,136 330,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="605" y="267" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 proveedor</text>
+<path d="M880,406 C455,406 455,136 30,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="455" y="267" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 creado_por</text>
+<path d="M1180,146 C905,146 905,406 630,406" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="905" y="272" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 pedido</text>
+<path d="M1180,146 C905,146 905,165 630,165" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="905" y="152" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 producto</text>
+<path d="M880,666 C455,666 455,136 30,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="455" y="397" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 creado_por</text>
+<path d="M1180,406 C905,406 905,666 630,666" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="905" y="532" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 venta</text>
+<path d="M1180,406 C905,406 905,165 630,165" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="905" y="282" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 producto</text>
+<path d="M1180,694 C905,694 905,666 630,666" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="905" y="676" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">1—1 venta</text>
+<path d="M1180,694 C605,694 605,136 30,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="605" y="412" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 creado_por</text>
+<path d="M1480,406 C1205,406 1205,694 930,694" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="1205" y="546" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 factura</text>
+<path d="M1480,406 C755,406 755,136 30,136" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="755" y="267" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—1 creado_por</text>
+<path d="M280,136 C155,136 155,368 30,368" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="155" y="248" font-size="10" fill="#00843D" text-anchor="middle" font-weight="bold">N—M groups</text>
+<rect x="30" y="70" width="250" height="133" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="30" y="70" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="30" y="92" width="250" height="8" fill="#00843D"/>
+<text x="40" y="90" font-size="13" font-weight="bold" fill="white">User</text>
+<text x="270" y="90" font-size="10" fill="#dff0e3" text-anchor="end">auth_user</text>
+<text x="40" y="114" font-size="11" fill="#b35400">id</text>
+<text x="270" y="114" font-size="10" fill="#777" text-anchor="end">Auto [PK]</text>
+<text x="40" y="133" font-size="11" fill="#333333">username</text>
+<text x="270" y="133" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="40" y="152" font-size="11" fill="#333333">email</text>
+<text x="270" y="152" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="40" y="171" font-size="11" fill="#333333">is_staff</text>
+<text x="270" y="171" font-size="10" fill="#777" text-anchor="end">Boolean</text>
+<text x="40" y="190" font-size="11" fill="#333333">is_superuser</text>
+<text x="270" y="190" font-size="10" fill="#777" text-anchor="end">Boolean</text>
+<rect x="30" y="330" width="250" height="76" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="30" y="330" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="30" y="352" width="250" height="8" fill="#00843D"/>
+<text x="40" y="350" font-size="13" font-weight="bold" fill="white">Group</text>
+<text x="270" y="350" font-size="10" fill="#dff0e3" text-anchor="end">auth_group</text>
+<text x="40" y="374" font-size="11" fill="#b35400">id</text>
+<text x="270" y="374" font-size="10" fill="#777" text-anchor="end">Auto [PK]</text>
+<text x="40" y="393" font-size="11" fill="#333333">name</text>
+<text x="270" y="393" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<rect x="330" y="70" width="250" height="133" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="330" y="70" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="330" y="92" width="250" height="8" fill="#00843D"/>
+<text x="340" y="90" font-size="13" font-weight="bold" fill="white">Proveedor</text>
+<text x="570" y="90" font-size="10" fill="#dff0e3" text-anchor="end">productos_proveedor</text>
+<text x="340" y="114" font-size="11" fill="#b35400">id</text>
+<text x="570" y="114" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="340" y="133" font-size="11" fill="#333333">razon_social</text>
+<text x="570" y="133" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="340" y="152" font-size="11" fill="#333333">nit</text>
+<text x="570" y="152" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="340" y="171" font-size="11" fill="#333333">categoria</text>
+<text x="570" y="171" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="340" y="190" font-size="11" fill="#333333">estado</text>
+<text x="570" y="190" font-size="10" fill="#777" text-anchor="end">Char</text>
+<rect x="330" y="330" width="250" height="95" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="330" y="330" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="330" y="352" width="250" height="8" fill="#00843D"/>
+<text x="340" y="350" font-size="13" font-weight="bold" fill="white">ContadorDocumento</text>
+<text x="570" y="350" font-size="10" fill="#dff0e3" text-anchor="end">productos_contadordocumento</text>
+<text x="340" y="374" font-size="11" fill="#b35400">id</text>
+<text x="570" y="374" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="340" y="393" font-size="11" fill="#333333">codigo</text>
+<text x="570" y="393" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="340" y="412" font-size="11" fill="#333333">ultimo</text>
+<text x="570" y="412" font-size="10" fill="#777" text-anchor="end">PositiveBigInteger</text>
+<rect x="630" y="70" width="250" height="190" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="630" y="70" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="630" y="92" width="250" height="8" fill="#00843D"/>
+<text x="640" y="90" font-size="13" font-weight="bold" fill="white">Producto</text>
+<text x="870" y="90" font-size="10" fill="#dff0e3" text-anchor="end">productos_producto</text>
+<text x="640" y="114" font-size="11" fill="#b35400">id</text>
+<text x="870" y="114" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="640" y="133" font-size="11" fill="#333333">nombre</text>
+<text x="870" y="133" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="640" y="152" font-size="11" fill="#333333">categoria</text>
+<text x="870" y="152" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="640" y="171" font-size="11" fill="#333333">precio</text>
+<text x="870" y="171" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="640" y="190" font-size="11" fill="#333333">cantidad</text>
+<text x="870" y="190" font-size="10" fill="#777" text-anchor="end">PositiveInteger</text>
+<text x="640" y="209" font-size="11" fill="#333333">stock_min</text>
+<text x="870" y="209" font-size="10" fill="#777" text-anchor="end">PositiveInteger</text>
+<text x="640" y="228" font-size="11" fill="#b35400">proveedor</text>
+<text x="870" y="228" font-size="10" fill="#777" text-anchor="end">Proveedor [FK]</text>
+<text x="640" y="247" font-size="11" fill="#333333">estado</text>
+<text x="870" y="247" font-size="10" fill="#777" text-anchor="end">Char</text>
+<rect x="630" y="330" width="250" height="152" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="630" y="330" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="630" y="352" width="250" height="8" fill="#00843D"/>
+<text x="640" y="350" font-size="13" font-weight="bold" fill="white">Pedido</text>
+<text x="870" y="350" font-size="10" fill="#dff0e3" text-anchor="end">productos_pedido</text>
+<text x="640" y="374" font-size="11" fill="#b35400">id</text>
+<text x="870" y="374" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="640" y="393" font-size="11" fill="#333333">numero_orden</text>
+<text x="870" y="393" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="640" y="412" font-size="11" fill="#b35400">proveedor</text>
+<text x="870" y="412" font-size="10" fill="#777" text-anchor="end">Proveedor [FK]</text>
+<text x="640" y="431" font-size="11" fill="#333333">estado</text>
+<text x="870" y="431" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="640" y="450" font-size="11" fill="#333333">total</text>
+<text x="870" y="450" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="640" y="469" font-size="11" fill="#b35400">creado_por</text>
+<text x="870" y="469" font-size="10" fill="#777" text-anchor="end">User [FK]</text>
+<rect x="630" y="590" width="250" height="152" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="630" y="590" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="630" y="612" width="250" height="8" fill="#00843D"/>
+<text x="640" y="610" font-size="13" font-weight="bold" fill="white">Venta</text>
+<text x="870" y="610" font-size="10" fill="#dff0e3" text-anchor="end">productos_venta</text>
+<text x="640" y="634" font-size="11" fill="#b35400">id</text>
+<text x="870" y="634" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="640" y="653" font-size="11" fill="#333333">numero_factura</text>
+<text x="870" y="653" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="640" y="672" font-size="11" fill="#333333">cliente</text>
+<text x="870" y="672" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="640" y="691" font-size="11" fill="#333333">estado</text>
+<text x="870" y="691" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="640" y="710" font-size="11" fill="#333333">total</text>
+<text x="870" y="710" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="640" y="729" font-size="11" fill="#b35400">creado_por</text>
+<text x="870" y="729" font-size="10" fill="#777" text-anchor="end">User [FK]</text>
+<rect x="930" y="70" width="250" height="152" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="930" y="70" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="930" y="92" width="250" height="8" fill="#00843D"/>
+<text x="940" y="90" font-size="13" font-weight="bold" fill="white">DetallePedido</text>
+<text x="1170" y="90" font-size="10" fill="#dff0e3" text-anchor="end">productos_detallepedido</text>
+<text x="940" y="114" font-size="11" fill="#b35400">id</text>
+<text x="1170" y="114" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="940" y="133" font-size="11" fill="#b35400">pedido</text>
+<text x="1170" y="133" font-size="10" fill="#777" text-anchor="end">Pedido [FK]</text>
+<text x="940" y="152" font-size="11" fill="#b35400">producto</text>
+<text x="1170" y="152" font-size="10" fill="#777" text-anchor="end">Producto [FK]</text>
+<text x="940" y="171" font-size="11" fill="#333333">cantidad</text>
+<text x="1170" y="171" font-size="10" fill="#777" text-anchor="end">PositiveInteger</text>
+<text x="940" y="190" font-size="11" fill="#333333">precio_unitario</text>
+<text x="1170" y="190" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="940" y="209" font-size="11" fill="#333333">subtotal</text>
+<text x="1170" y="209" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<rect x="930" y="330" width="250" height="152" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="930" y="330" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="930" y="352" width="250" height="8" fill="#00843D"/>
+<text x="940" y="350" font-size="13" font-weight="bold" fill="white">DetalleVenta</text>
+<text x="1170" y="350" font-size="10" fill="#dff0e3" text-anchor="end">productos_detalleventa</text>
+<text x="940" y="374" font-size="11" fill="#b35400">id</text>
+<text x="1170" y="374" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="940" y="393" font-size="11" fill="#b35400">venta</text>
+<text x="1170" y="393" font-size="10" fill="#777" text-anchor="end">Venta [FK]</text>
+<text x="940" y="412" font-size="11" fill="#b35400">producto</text>
+<text x="1170" y="412" font-size="10" fill="#777" text-anchor="end">Producto [FK]</text>
+<text x="940" y="431" font-size="11" fill="#333333">cantidad</text>
+<text x="1170" y="431" font-size="10" fill="#777" text-anchor="end">PositiveInteger</text>
+<text x="940" y="450" font-size="11" fill="#333333">precio_unitario</text>
+<text x="1170" y="450" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="940" y="469" font-size="11" fill="#333333">subtotal</text>
+<text x="1170" y="469" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<rect x="930" y="590" width="250" height="209" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="930" y="590" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="930" y="612" width="250" height="8" fill="#00843D"/>
+<text x="940" y="610" font-size="13" font-weight="bold" fill="white">Factura</text>
+<text x="1170" y="610" font-size="10" fill="#dff0e3" text-anchor="end">productos_factura</text>
+<text x="940" y="634" font-size="11" fill="#b35400">id</text>
+<text x="1170" y="634" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="940" y="653" font-size="11" fill="#333333">numero</text>
+<text x="1170" y="653" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="940" y="672" font-size="11" fill="#b35400">venta</text>
+<text x="1170" y="672" font-size="10" fill="#777" text-anchor="end">Venta [FK,UQ]</text>
+<text x="940" y="691" font-size="11" fill="#333333">cliente_nombre</text>
+<text x="1170" y="691" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="940" y="710" font-size="11" fill="#333333">subtotal</text>
+<text x="1170" y="710" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="940" y="729" font-size="11" fill="#333333">iva</text>
+<text x="1170" y="729" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="940" y="748" font-size="11" fill="#333333">total</text>
+<text x="1170" y="748" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="940" y="767" font-size="11" fill="#333333">estado</text>
+<text x="1170" y="767" font-size="10" fill="#777" text-anchor="end">Char</text>
+<text x="940" y="786" font-size="11" fill="#333333">cufe</text>
+<text x="1170" y="786" font-size="10" fill="#777" text-anchor="end">Char</text>
+<rect x="1230" y="330" width="250" height="152" rx="8" fill="white" stroke="#00843D" stroke-width="2"/>
+<rect x="1230" y="330" width="250" height="30" rx="8" fill="#00843D"/>
+<rect x="1230" y="352" width="250" height="8" fill="#00843D"/>
+<text x="1240" y="350" font-size="13" font-weight="bold" fill="white">NotaCredito</text>
+<text x="1470" y="350" font-size="10" fill="#dff0e3" text-anchor="end">productos_notacredito</text>
+<text x="1240" y="374" font-size="11" fill="#b35400">id</text>
+<text x="1470" y="374" font-size="10" fill="#777" text-anchor="end">BigAuto [PK]</text>
+<text x="1240" y="393" font-size="11" fill="#333333">numero</text>
+<text x="1470" y="393" font-size="10" fill="#777" text-anchor="end">Char [UQ]</text>
+<text x="1240" y="412" font-size="11" fill="#b35400">factura</text>
+<text x="1470" y="412" font-size="10" fill="#777" text-anchor="end">Factura [FK]</text>
+<text x="1240" y="431" font-size="11" fill="#333333">motivo</text>
+<text x="1470" y="431" font-size="10" fill="#777" text-anchor="end">Text</text>
+<text x="1240" y="450" font-size="11" fill="#333333">total</text>
+<text x="1470" y="450" font-size="10" fill="#777" text-anchor="end">Decimal</text>
+<text x="1240" y="469" font-size="11" fill="#b35400">creado_por</text>
+<text x="1470" y="469" font-size="10" fill="#777" text-anchor="end">User [FK]</text>
+</svg>

@@ -1,0 +1,98 @@
+erDiagram
+    USER {
+        Auto id
+        Char username
+        Char email
+        Boolean is_staff
+        Boolean is_superuser
+    }
+    GROUP {
+        Auto id
+        Char name
+    }
+    PROVEEDOR {
+        BigAuto id
+        Char razon_social
+        Char nit
+        Char categoria
+        Char estado
+    }
+    PRODUCTO {
+        BigAuto id
+        Char nombre
+        Char categoria
+        Decimal precio
+        PositiveInteger cantidad
+        PositiveInteger stock_min
+        Proveedor proveedor
+        Char estado
+    }
+    PEDIDO {
+        BigAuto id
+        Char numero_orden
+        Proveedor proveedor
+        Char estado
+        Decimal total
+        User creado_por
+    }
+    DET_PEDIDO {
+        BigAuto id
+        Pedido pedido
+        Producto producto
+        PositiveInteger cantidad
+        Decimal precio_unitario
+        Decimal subtotal
+    }
+    VENTA {
+        BigAuto id
+        Char numero_factura
+        Char cliente
+        Char estado
+        Decimal total
+        User creado_por
+    }
+    DET_VENTA {
+        BigAuto id
+        Venta venta
+        Producto producto
+        PositiveInteger cantidad
+        Decimal precio_unitario
+        Decimal subtotal
+    }
+    FACTURA {
+        BigAuto id
+        Char numero
+        Venta venta
+        Char cliente_nombre
+        Decimal subtotal
+        Decimal iva
+        Decimal total
+        Char estado
+        Char cufe
+    }
+    NOTACREDITO {
+        BigAuto id
+        Char numero
+        Factura factura
+        Text motivo
+        Decimal total
+        User creado_por
+    }
+    CONTADORDOCUMENTO {
+        BigAuto id
+        Char codigo
+        PositiveBigInteger ultimo
+    }
+    PRODUCTO }o--|| PROVEEDOR : "proveedor"
+    PEDIDO }o--|| PROVEEDOR : "proveedor"
+    PEDIDO }o--|| USER : "creado_por"
+    DET_PEDIDO }o--|| PEDIDO : "pedido"
+    DET_PEDIDO }o--|| PRODUCTO : "producto"
+    VENTA }o--|| USER : "creado_por"
+    DET_VENTA }o--|| VENTA : "venta"
+    DET_VENTA }o--|| PRODUCTO : "producto"
+    FACTURA ||--|| VENTA : "venta"
+    FACTURA }o--|| USER : "creado_por"
+    NOTACREDITO }o--|| FACTURA : "factura"
+    NOTACREDITO }o--|| USER : "creado_por"
+    USER }o--o{ GROUP : "groups"
