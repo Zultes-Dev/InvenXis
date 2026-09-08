@@ -15,6 +15,7 @@ env/
 
 # Django media/db
 *.sqlite3
+*.bak
 db.sqlite3
 local_settings.py
 staticfiles/
