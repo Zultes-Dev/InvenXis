@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta
+from .models import (
+    Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta,
+    Factura, NotaCredito, ContadorDocumento,
+)
 
 
 class DetallePedidoInline(admin.TabularInline):
@@ -60,3 +63,25 @@ class VentaAdmin(admin.ModelAdmin):
 class DetalleVentaAdmin(admin.ModelAdmin):
     list_display = ('venta', 'producto', 'cantidad', 'precio_unitario', 'subtotal')
     search_fields = ('venta__numero_factura', 'producto__nombre')
+
+
+@admin.register(Factura)
+class FacturaAdmin(admin.ModelAdmin):
+    list_display = ('numero', 'cliente_nombre', 'total', 'estado', 'fecha')
+    list_filter = ('estado',)
+    search_fields = ('numero', 'cliente_nombre', 'cliente_documento', 'cufe')
+    ordering = ('-fecha_creacion',)
+    readonly_fields = ('numero', 'cufe', 'ubl_xml', 'respuesta_dian')
+
+
+@admin.register(NotaCredito)
+class NotaCreditoAdmin(admin.ModelAdmin):
+    list_display = ('numero', 'factura', 'total', 'fecha')
+    search_fields = ('numero', 'factura__numero')
+    ordering = ('-fecha',)
+
+
+@admin.register(ContadorDocumento)
+class ContadorDocumentoAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'ultimo')
+    search_fields = ('codigo',)

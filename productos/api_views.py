@@ -18,13 +18,20 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
-from .models import Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta
+from .models import (
+    Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta,
+    Factura, NotaCredito,
+)
 from .serializers import (
     ProductoSerializer, ProductoListSerializer,
     ProveedorSerializer, ProveedorListSerializer,
     PedidoSerializer, PedidoCreateSerializer,
     DetallePedidoSerializer,
     VentaSerializer, VentaCreateSerializer,
+    FacturaSerializer, NotaCreditoSerializer,
+)
+from productos.fe.servicios import (
+    crear_factura, emitir_factura, anular_factura, es_admin_fe,
 )
 
 logger = logging.getLogger(__name__)
@@ -924,3 +931,205 @@ def dashboard_api(request):
     from django.core.cache import cache
     cache.set('dashboard_api:v1', payload, 60)
     return api_response(payload)
+
+
+# =============================================================================
+# FACTURACIÓN (factura + factura electrónica DIAN-ready)
+# =============================================================================
+
+class FacturaListView(APIView):
+    """GET /api/facturas/ - Listar facturas (filtros + paginación)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        queryset = Factura.objects.select_related('venta').all()
+        estado = request.query_params.get('estado')
+        if estado:
+            queryset = queryset.filter(estado=estado)
+        busqueda = request.query_params.get('q')
+        if busqueda:
+            queryset = queryset.filter(
+                Q(numero__icontains=busqueda)
+                | Q(cliente_nombre__icontains=busqueda)
+                | Q(cliente_documento__icontains=busqueda)
+            )
+        paginator = StandardPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        return paginator.get_paginated_response(
+            FacturaSerializer(page, many=True).data)
+
+
+class FacturaDetailView(APIView):
+    """GET /api/facturas/:id/ - Detalle de factura."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        factura = get_object_or_404(Factura.objects.select_related('venta'), pk=pk)
+        return api_response(FacturaSerializer(factura).data)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def facturar_venta(request, venta_id):
+    """POST /api/ventas/:id/facturar/ - Crea la factura en borrador."""
+    venta = get_object_or_404(Venta, pk=venta_id)
+    try:
+        factura = crear_factura(
+            venta,
+            cliente_nombre=request.data.get('cliente_nombre'),
+            cliente_documento=request.data.get('cliente_documento'),
+            cliente_email=request.data.get('cliente_email'),
+            descuento=request.data.get('descuento') or 0,
+            creado_por=request.user,
+        )
+    except ValueError as e:
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST, success=False,
+            errors=[{'message': str(e), 'code': 'factura_invalida'}])
+    invalidate_dashboard()
+    logger.info("Factura creada: %s (venta %d)", factura.numero, venta.pk)
+    return api_response(
+        data=FacturaSerializer(factura).data,
+        status_code=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def emitir_factura_view(request, pk):
+    """POST /api/facturas/:id/emitir/ - Emite FE ante el proveedor."""
+    factura = get_object_or_404(Factura, pk=pk)
+    try:
+        factura = emitir_factura(factura)
+    except ValueError as e:
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST, success=False,
+            errors=[{'message': str(e), 'code': 'emision_invalida'}])
+    invalidate_dashboard()
+    data = FacturaSerializer(factura).data
+    code = status.HTTP_200_OK if factura.estado == 'validada_dian' else status.HTTP_502_BAD_GATEWAY
+    return api_response(data=data, status_code=code)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def anular_factura_view(request, pk):
+    """POST /api/facturas/:id/anular/ - Anula (solo Administradores)."""
+    factura = get_object_or_404(Factura.objects.select_related('venta'), pk=pk)
+    motivo = (request.data.get('motivo') or '').strip()
+    try:
+        nc = anular_factura(factura, motivo=motivo, usuario=request.user)
+    except PermissionError as e:
+        return api_response(
+            status_code=status.HTTP_403_FORBIDDEN, success=False,
+            errors=[{'message': str(e), 'code': 'forbidden'}])
+    except ValueError as e:
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST, success=False,
+            errors=[{'message': str(e), 'code': 'anulacion_invalida'}])
+    invalidate_dashboard()
+    logger.info("Factura anulada: %s (%s)", factura.numero, motivo)
+    return api_response(data=NotaCreditoSerializer(nc).data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def factura_pdf_view(request, pk):
+    """GET /api/facturas/:id/pdf/ - Descarga la factura en PDF."""
+    factura = get_object_or_404(Factura.objects.select_related('venta'), pk=pk)
+    buffer = _generar_factura_pdf(factura)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{factura.numero}.pdf"'
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def factura_ubl_view(request, pk):
+    """GET /api/facturas/:id/ubl/ - Descarga el UBL XML."""
+    from productos.fe.ubl import construir_ubl
+    factura = get_object_or_404(Factura, pk=pk)
+    xml = factura.ubl_xml or construir_ubl(factura)
+    response = HttpResponse(xml, content_type='application/xml')
+    response['Content-Disposition'] = f'attachment; filename="factura_{factura.numero}.xml"'
+    return response
+
+
+class NotaCreditoListView(APIView):
+    """GET /api/notas-credito/ - Listar notas crédito."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        queryset = NotaCredito.objects.select_related('factura').all()
+        paginator = StandardPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        return paginator.get_paginated_response(
+            NotaCreditoSerializer(page, many=True).data)
+
+
+def _generar_factura_pdf(factura):
+    """PDF profesional de factura con totales, CUFE y estado DIAN."""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle)
+    from io import BytesIO
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            topMargin=15 * mm, bottomMargin=15 * mm)
+    styles = getSampleStyleSheet()
+    brand = colors.HexColor('#E8A230')
+    elements = []
+
+    title_style = ParagraphStyle('FTitle', parent=styles['Title'],
+                                 fontSize=20, textColor=brand, spaceAfter=2)
+    elements.append(Paragraph(f"InvenXis — Factura {factura.numero}", title_style))
+    elements.append(Paragraph(
+        f"Fecha: {factura.fecha.strftime('%Y-%m-%d %H:%M')} · "
+        f"Estado: {factura.get_estado_display()}",
+        styles['Normal']))
+    elements.append(Spacer(1, 6))
+
+    elements.append(Paragraph(
+        f"<b>Cliente:</b> {factura.cliente_nombre} · "
+        f"Doc: {factura.cliente_documento}"
+        + (f" · {factura.cliente_email}" if factura.cliente_email else ''),
+        styles['Normal']))
+    elements.append(Paragraph(
+        f"<b>Venta:</b> {factura.venta.numero_factura}", styles['Normal']))
+    elements.append(Spacer(1, 8))
+
+    rows = [['Descripción', 'Cant.', 'P. unitario', 'Subtotal']]
+    for lin in factura.lineas or []:
+        rows.append([lin.get('descripcion', ''), str(lin.get('cantidad', '')),
+                     str(lin.get('precio_unitario', '')), str(lin.get('subtotal', ''))])
+    rows += [
+        ['', '', 'Subtotal', f"{factura.subtotal:.2f}"],
+        ['', '', 'Descuento', f"{factura.descuento:.2f}"],
+        ['', '', f"IVA ({factura.iva_porcentaje}%)", f"{factura.iva:.2f}"],
+        ['', '', 'TOTAL', f"{factura.total:.2f}"],
+    ]
+    table = Table(rows, colWidths=[80 * mm, 20 * mm, 30 * mm, 30 * mm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), brand),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#0D0E0F')),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#999999')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F7F7F7')]),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+    ]))
+    elements.append(table)
+    elements.append(Spacer(1, 10))
+    if factura.cufe:
+        elements.append(Paragraph(f"<b>CUFE:</b> {factura.cufe}", styles['Normal']))
+    if factura.estado == 'anulada' and factura.motivo_anulacion:
+        elements.append(Paragraph(
+            f"<b>ANULADA:</b> {factura.motivo_anulacion}", styles['Normal']))
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer

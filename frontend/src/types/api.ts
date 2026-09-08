@@ -160,6 +160,49 @@ export interface VentaListItem {
   metodo_pago: string | null;
   estado: string;
   creado_por: User;
+  factura_numero: string | null;
+  factura_estado: string | null;
+}
+
+export type FacturaEstado = 'borrador' | 'validada_dian' | 'error' | 'anulada';
+
+export interface FacturaLinea {
+  producto_id: number;
+  descripcion: string;
+  cantidad: number;
+  precio_unitario: string;
+  subtotal: string;
+}
+
+export interface Factura {
+  id: number;
+  numero: string;
+  fecha: string;
+  venta: number;
+  venta_numero: string;
+  cliente_nombre: string;
+  cliente_documento: string;
+  cliente_email: string | null;
+  iva_porcentaje: string;
+  descuento: string;
+  subtotal: string;
+  iva: string;
+  total: string;
+  lineas: FacturaLinea[];
+  estado: FacturaEstado;
+  cufe: string;
+  motivo_anulacion: string;
+  respuesta_dian: { resultado?: string; track_id?: string; mensaje?: string };
+  fecha_creacion: string;
+}
+
+export interface NotaCredito {
+  id: number;
+  numero: string;
+  factura: number;
+  motivo: string;
+  total: string;
+  fecha: string;
 }
 
 export interface DashboardKPI {

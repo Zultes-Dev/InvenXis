@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ventasApi } from '../api';
-import { useVentas, useCreateVenta, useProductos } from '../hooks/useApi';
+import { useVentas, useCreateVenta, useProductos, useFacturaMutations } from '../hooks/useApi';
+import type { VentaListItem } from '../types/api';
 
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
@@ -9,7 +10,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { PageSpinner } from '../components/ui/Spinner';
 import { formatCurrency, formatDate, getEstadoVentaColor, downloadBlob } from '../utils/helpers';
-import { Plus, Search, X, ChevronLeft, ChevronRight, FileDown, ShoppingCart } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight, FileDown, ShoppingCart } from 'lucide-react';
 
 type VentaFilter = {
   estado: string;
@@ -79,6 +80,43 @@ export function VentasPage() {
 
   const createVenta = useCreateVenta();
   const submitting = createVenta.isPending;
+
+  const facturaMutations = useFacturaMutations();
+  const [facturarVenta, setFacturarVenta] = useState<VentaListItem | null>(null);
+  const [facCliente, setFacCliente] = useState('');
+  const [facDoc, setFacDoc] = useState('');
+  const [facEmail, setFacEmail] = useState('');
+  const [facError, setFacError] = useState('');
+
+  const openFacturarModal = (venta: VentaListItem) => {
+    setFacturarVenta(venta);
+    setFacCliente(venta.cliente || '');
+    setFacDoc('');
+    setFacEmail('');
+    setFacError('');
+  };
+
+  const handleFacturar = () => {
+    if (!facturarVenta) return;
+    if (!facDoc.trim()) {
+      setFacError('El documento del cliente es obligatorio (NIT/CC)');
+      return;
+    }
+    facturaMutations.facturar.mutate(
+      {
+        ventaId: facturarVenta.id,
+        payload: {
+          cliente_nombre: facCliente || facturarVenta.cliente || 'Consumidor final',
+          cliente_documento: facDoc.trim(),
+          cliente_email: facEmail || null,
+        },
+      },
+      {
+        onSuccess: () => setFacturarVenta(null),
+        onError: () => setFacError('No se pudo facturar la venta'),
+      },
+    );
+  };
 
   const handleFilterChange = (key: keyof VentaFilter, value: string | number) => {
     setFilter((prev) => ({ ...prev, [key]: value, page: key === 'page' ? (value as number) : 1 }));
@@ -256,9 +294,15 @@ export function VentasPage() {
                         <Badge variant={getEstadoVentaColor(venta.estado)}>{venta.estado}</Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="sm">
-                          <Search className="w-4 h-4" />
-                        </Button>
+                        {venta.factura_numero ? (
+                          <Badge variant="success">{venta.factura_numero}</Badge>
+                        ) : venta.estado === 'completada' ? (
+                          <Button variant="secondary" size="sm" onClick={() => openFacturarModal(venta)}>
+                            Facturar
+                          </Button>
+                        ) : (
+                          <span className="text-gray-300 dark:text-gray-600">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -383,6 +427,34 @@ export function VentasPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={facturarVenta !== null}
+        onClose={() => setFacturarVenta(null)}
+        title={facturarVenta ? `Facturar ${facturarVenta.numero_factura}` : 'Facturar'}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setFacturarVenta(null)}>Cancelar</Button>
+            <Button onClick={handleFacturar} loading={facturaMutations.facturar.isPending}>
+              Crear factura
+            </Button>
+          </>
+        }
+      >
+        {facError && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-sm text-red-600 dark:text-red-400">
+            {facError}
+          </div>
+        )}
+        <div className="space-y-4">
+          <Input label="Cliente" value={facCliente} onChange={(e) => setFacCliente(e.target.value)} placeholder="Nombre del cliente" />
+          <Input label="NIT / CC *" value={facDoc} onChange={(e) => setFacDoc(e.target.value)} placeholder="Documento (obligatorio para FE)" />
+          <Input label="Email" type="email" value={facEmail} onChange={(e) => setFacEmail(e.target.value)} placeholder="Para envío de la FE (opcional)" />
+          <p className="text-xs font-mono text-gray-500 dark:text-gray-400">
+            Total venta: {facturarVenta ? formatCurrency(facturarVenta.total) : ''} · IVA 19% calculado al facturar.
+          </p>
+        </div>
       </Modal>
     </div>
   );

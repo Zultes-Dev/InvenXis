@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import {
   dashboardApi,
+  facturasApi,
   productosApi,
   proveedoresApi,
   reportesApi,
@@ -14,6 +15,7 @@ import {
 import { unwrap, unwrapPaginated } from '../lib/queryClient';
 import type {
   DashboardData,
+  Factura,
   ProductoListItem,
   ProveedorListItem,
   ReporteInventario,
@@ -161,6 +163,49 @@ export function useCreateVenta() {
       qc.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
+}
+
+// --------------------------------------------------------------- Facturación
+export interface FacturasParams {
+  page?: number;
+  page_size?: number;
+  estado?: string;
+  q?: string;
+}
+
+export function useFacturas(params: FacturasParams) {
+  return useQuery({
+    queryKey: ['facturas', params],
+    queryFn: async () =>
+      unwrapPaginated<Factura>(await facturasApi.list(params)),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useFacturaMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['facturas'] });
+    qc.invalidateQueries({ queryKey: ['ventas'] });
+    qc.invalidateQueries({ queryKey: ['productos'] });
+    qc.invalidateQueries({ queryKey: ['dashboard'] });
+  };
+  return {
+    facturar: useMutation({
+      mutationFn: ({ ventaId, payload }: { ventaId: number; payload: unknown }) =>
+        facturasApi.facturarVenta(ventaId, payload),
+      onSuccess: invalidate,
+    }),
+    emitir: useMutation({
+      mutationFn: (id: number) => facturasApi.emitir(id),
+      onSuccess: invalidate,
+    }),
+    anular: useMutation({
+      mutationFn: ({ id, motivo }: { id: number; motivo: string }) =>
+        facturasApi.anular(id, motivo),
+      onSuccess: invalidate,
+    }),
+  };
 }
 
 // ------------------------------------------------------------------ Reportes

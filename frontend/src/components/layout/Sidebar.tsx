@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard, Package, Truck, ShoppingCart, FileBarChart, LogOut,
-  ChevronLeft, ShieldCheck
+  ChevronLeft, ShieldCheck, Receipt
 } from 'lucide-react';
 import { useAuth } from '../../contexts';
 
@@ -16,6 +16,7 @@ const navItems = [
   { to: '/productos', icon: Package, label: 'Productos' },
   { to: '/proveedores', icon: Truck, label: 'Proveedores' },
   { to: '/ventas', icon: ShoppingCart, label: 'Ventas' },
+  { to: '/facturacion', icon: Receipt, label: 'Facturación' },
   { to: '/reportes', icon: FileBarChart, label: 'Reportes' },
 ];
 

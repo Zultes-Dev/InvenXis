@@ -23,6 +23,7 @@ a React 19 + Vite + TypeScript single-page application on the frontend.
 - **Inventory management** — products, categories, stock control, and minimum-stock alerts
 - **Supplier management** — profiles, product counts, and purchase order history
 - **Sales** — register sales with automatic stock deduction and date-range filtering
+- **Invoicing** — atomic consecutive numbers, VAT totals, PDF, UBL 2.1 + CUFE electronic invoicing (DIAN-ready), credit notes on annulment
 - **Dashboard** — KPIs, charts (Chart.js), and recent-activity feeds
 - **Reports** — inventory stats, best sellers, and sales analytics
 - **PDF & Excel exports** — downloadable reports straight from the API

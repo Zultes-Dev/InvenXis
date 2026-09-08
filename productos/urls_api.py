@@ -29,6 +29,16 @@ urlpatterns = [
 
     # Ventas
     path('ventas/', api_views.VentaListCreateView.as_view(), name='api_ventas_list'),
+    path('ventas/<int:venta_id>/facturar/', api_views.facturar_venta, name='api_facturar_venta'),
+
+    # Facturación
+    path('facturas/', api_views.FacturaListView.as_view(), name='api_facturas_list'),
+    path('facturas/<int:pk>/', api_views.FacturaDetailView.as_view(), name='api_facturas_detail'),
+    path('facturas/<int:pk>/emitir/', api_views.emitir_factura_view, name='api_emitir_factura'),
+    path('facturas/<int:pk>/anular/', api_views.anular_factura_view, name='api_anular_factura'),
+    path('facturas/<int:pk>/pdf/', api_views.factura_pdf_view, name='api_factura_pdf'),
+    path('facturas/<int:pk>/ubl/', api_views.factura_ubl_view, name='api_factura_ubl'),
+    path('notas-credito/', api_views.NotaCreditoListView.as_view(), name='api_notas_credito_list'),
 
     # Dashboard
     path('dashboard/', api_views.dashboard_api, name='api_dashboard'),

@@ -243,3 +243,89 @@ class DetalleVenta(models.Model):
     def save(self, *args, **kwargs):
         self.subtotal = self.precio_unitario * self.cantidad
         super().save(*args, **kwargs)
+
+
+class ContadorDocumento(models.Model):
+    """Consecutivo atómico por tipo de documento (FAC, NC)."""
+
+    codigo = models.CharField('Código', max_length=10, unique=True)
+    ultimo = models.PositiveBigIntegerField('Último número', default=0)
+
+    class Meta:
+        verbose_name = 'Contador de documento'
+        verbose_name_plural = 'Contadores de documentos'
+
+    def __str__(self):
+        return f"{self.codigo}-{self.ultimo:06d}"
+
+
+class Factura(models.Model):
+    """Factura de venta con soporte de factura electrónica (DIAN-ready)."""
+
+    ESTADOS = [
+        ('borrador', 'Borrador'),
+        ('validada_dian', 'Validada DIAN'),
+        ('error', 'Error de emisión'),
+        ('anulada', 'Anulada'),
+    ]
+
+    venta = models.OneToOneField(
+        Venta, on_delete=models.PROTECT,
+        related_name='factura', verbose_name='Venta')
+    numero = models.CharField('Número', max_length=30, unique=True)
+    fecha = models.DateTimeField('Fecha de emisión', auto_now_add=True)
+    cliente_nombre = models.CharField('Cliente', max_length=200)
+    cliente_documento = models.CharField('NIT/CC cliente', max_length=30)
+    cliente_email = models.EmailField('Email cliente', blank=True, null=True)
+    iva_porcentaje = models.DecimalField(
+        'IVA %', max_digits=5, decimal_places=2, default=19)
+    descuento = models.DecimalField(
+        'Descuento', max_digits=12, decimal_places=2, default=0,
+        validators=[MinValueValidator(0)])
+    subtotal = models.DecimalField(
+        'Subtotal', max_digits=12, decimal_places=2, default=0)
+    iva = models.DecimalField('IVA', max_digits=12, decimal_places=2, default=0)
+    total = models.DecimalField('Total', max_digits=12, decimal_places=2, default=0)
+    lineas = models.JSONField('Líneas (snapshot)', default=list)
+    estado = models.CharField('Estado', max_length=20, choices=ESTADOS,
+                              default='borrador')
+    cufe = models.CharField('CUFE', max_length=96, blank=True, default='')
+    ubl_xml = models.TextField('UBL XML', blank=True, default='')
+    respuesta_dian = models.JSONField('Respuesta DIAN', default=dict, blank=True)
+    motivo_anulacion = models.TextField('Motivo anulación', blank=True, default='')
+    creado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='facturas_creadas')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = 'Factura'
+        verbose_name_plural = 'Facturas'
+
+    def __str__(self):
+        return f"Factura {self.numero} - {self.total}"
+
+
+class NotaCredito(models.Model):
+    """Nota crédito que respalda la anulación de una factura validada."""
+
+    factura = models.ForeignKey(
+        Factura, on_delete=models.PROTECT,
+        related_name='notas_credito', verbose_name='Factura')
+    numero = models.CharField('Número', max_length=30, unique=True)
+    motivo = models.TextField('Motivo')
+    total = models.DecimalField('Total', max_digits=12, decimal_places=2)
+    fecha = models.DateTimeField('Fecha', auto_now_add=True)
+    creado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='notas_credito_creadas')
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Nota crédito'
+        verbose_name_plural = 'Notas crédito'
+
+    def __str__(self):
+        return f"NC {self.numero} -> {self.factura.numero}"

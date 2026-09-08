@@ -3,7 +3,10 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta
+from .models import (
+    Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta,
+    Factura, NotaCredito,
+)
 
 
 class ProveedorSerializer(serializers.ModelSerializer):
@@ -157,15 +160,26 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True, read_only=True)
     creado_por_nombre = serializers.CharField(source='creado_por.get_full_name', read_only=True)
+    factura_numero = serializers.SerializerMethodField()
+    factura_estado = serializers.SerializerMethodField()
 
     class Meta:
         model = Venta
         fields = [
             'id', 'cliente', 'numero_factura', 'estado', 'fecha_venta',
             'total', 'metodo_pago', 'observaciones', 'creado_por', 'creado_por_nombre',
-            'detalles', 'fecha_creacion', 'fecha_actualizacion'
+            'detalles', 'factura_numero', 'factura_estado',
+            'fecha_creacion', 'fecha_actualizacion'
         ]
         read_only_fields = ['id', 'numero_factura', 'total', 'fecha_creacion', 'fecha_actualizacion']
+
+    def get_factura_numero(self, obj):
+        factura = getattr(obj, 'factura', None)
+        return factura.numero if factura else None
+
+    def get_factura_estado(self, obj):
+        factura = getattr(obj, 'factura', None)
+        return factura.estado if factura else None
 
 
 class VentaCreateSerializer(serializers.ModelSerializer):
@@ -209,6 +223,30 @@ class VentaCreateSerializer(serializers.ModelSerializer):
                     cantidad=F('cantidad') - cantidad)
             venta.calcular_total()
             return venta
+
+
+class FacturaSerializer(serializers.ModelSerializer):
+    venta_numero = serializers.CharField(source='venta.numero_factura', read_only=True)
+
+    class Meta:
+        model = Factura
+        fields = [
+            'id', 'numero', 'fecha', 'venta', 'venta_numero',
+            'cliente_nombre', 'cliente_documento', 'cliente_email',
+            'iva_porcentaje', 'descuento', 'subtotal', 'iva', 'total',
+            'lineas', 'estado', 'cufe', 'motivo_anulacion',
+            'respuesta_dian', 'fecha_creacion',
+        ]
+        read_only_fields = ['id', 'numero', 'fecha', 'subtotal', 'iva', 'total',
+                            'lineas', 'estado', 'cufe', 'respuesta_dian',
+                            'fecha_creacion']
+
+
+class NotaCreditoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotaCredito
+        fields = ['id', 'numero', 'factura', 'motivo', 'total', 'fecha']
+        read_only_fields = ['id', 'numero', 'total', 'fecha']
 
 
 class LoginSerializer(serializers.Serializer):

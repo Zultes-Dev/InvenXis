@@ -9,6 +9,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   '/productos': { title: 'Productos', subtitle: 'Inventario' },
   '/proveedores': { title: 'Proveedores', subtitle: 'Directorio' },
   '/ventas': { title: 'Ventas', subtitle: 'Punto de Venta' },
+  '/facturacion': { title: 'Facturación', subtitle: 'Electrónica DIAN' },
   '/reportes': { title: 'Reportes', subtitle: 'Analítica' },
 };
 

@@ -125,4 +125,22 @@ export const dashboardApi = {
   get: () => api.get('/dashboard/'),
 };
 
+export const facturasApi = {
+  list: (params?: Record<string, any>) => api.get('/facturas/', { params }),
+  get: (id: number) => api.get(`/facturas/${id}/`),
+  facturarVenta: (ventaId: number, data: any) =>
+    api.post(`/ventas/${ventaId}/facturar/`, data),
+  emitir: (id: number) => api.post(`/facturas/${id}/emitir/`),
+  anular: (id: number, motivo: string) =>
+    api.post(`/facturas/${id}/anular/`, { motivo }),
+  pdf: (id: number) =>
+    api.get(`/facturas/${id}/pdf/`, { responseType: 'blob' }),
+  ubl: (id: number) =>
+    api.get(`/facturas/${id}/ubl/`, { responseType: 'blob' }),
+};
+
+export const notasCreditoApi = {
+  list: (params?: Record<string, any>) => api.get('/notas-credito/', { params }),
+};
+
 export default api;

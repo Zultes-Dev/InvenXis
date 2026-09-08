@@ -14,6 +14,8 @@ const ProductosPage = lazy(() => import('./pages/ProductosPage'));
 const ProveedoresPage = lazy(() => import('./pages/ProveedoresPage'));
 const VentasPage = lazy(() =>
   import('./pages/VentasPage').then((m) => ({ default: m.VentasPage })));
+const FacturasPage = lazy(() =>
+  import('./pages/FacturasPage').then((m) => ({ default: m.FacturasPage })));
 const ReportesPage = lazy(() =>
   import('./pages/ReportesPage').then((m) => ({ default: m.ReportesPage })));
 
@@ -63,8 +65,9 @@ function AppRoutes() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/productos" element={<ProductosPage />} />
           <Route path="/proveedores" element={<ProveedoresPage />} />
-          <Route path="/ventas" element={<VentasPage />} />
-          <Route path="/reportes" element={<ReportesPage />} />
+        <Route path="/ventas" element={<VentasPage />} />
+        <Route path="/facturacion" element={<FacturasPage />} />
+        <Route path="/reportes" element={<ReportesPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
