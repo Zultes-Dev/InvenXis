@@ -1,4 +1,4 @@
-"""Custom exception handler for InvenSoft Pro API."""
+"""Custom exception handler for InvenXis API."""
 
 import logging
 from rest_framework.views import exception_handler

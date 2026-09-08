@@ -15,7 +15,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const pageInfo = pageTitles[location.pathname] || { title: 'InvenSoft', subtitle: 'Gestión' };
+  const pageInfo = pageTitles[location.pathname] || { title: 'InvenXis', subtitle: 'Gestión' };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

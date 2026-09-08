@@ -8,8 +8,8 @@ from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 admin.site.site_url = '/productos/'
-admin.site.site_header = 'InvenSoft - Administración'
-admin.site.site_title = 'InvenSoft Admin'
+admin.site.site_header = 'InvenXis - Administración'
+admin.site.site_title = 'InvenXis Admin'
 
 
 def root_redirect(request):

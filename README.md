@@ -1,4 +1,4 @@
-# InvenSoft Pro
+# InvenXis
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-6.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
@@ -7,14 +7,14 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](LICENSE)
-[![CI](https://github.com/Zultes-Dev/InvenSoft-Pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Zultes-Dev/InvenSoft-Pro/actions/workflows/ci.yml)
+[![CI](https://github.com/Zultes-Dev/InvenXis/actions/workflows/ci.yml/badge.svg)](https://github.com/Zultes-Dev/InvenXis/actions/workflows/ci.yml)
 
 A full-stack **inventory management system** with a decoupled client–server
 architecture: a Django REST Framework API with JWT authentication on the backend and
 a React 19 + Vite + TypeScript single-page application on the frontend.
 
 <!-- Project screenshot: drop `dashboard.png` in docs/screenshots/ and uncomment:
-<img src="docs/screenshots/dashboard.png" alt="InvenSoft Pro dashboard" width="100%" />
+<img src="docs/screenshots/dashboard.png" alt="InvenXis dashboard" width="100%" />
 -->
 
 ## Features
@@ -75,8 +75,8 @@ web server.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Zultes-Dev/InvenSoft-Pro.git
-cd InvenSoft-Pro
+git clone https://github.com/Zultes-Dev/InvenXis.git
+cd InvenXis
 ```
 
 ### 2. Backend (Django API)
@@ -135,7 +135,7 @@ npm run dev                  # http://localhost:3000 (proxies /api to Django)
 ## Project Structure
 
 ```
-invensoft-pro/
+invenxis/
 ├── .github/                  # CI + issue/PR templates
 │   └── workflows/ci.yml
 ├── config/                   # Django settings, routing, WSGI/ASGI

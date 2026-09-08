@@ -1,4 +1,4 @@
-"""API REST views for InvenSoft Pro - Módulo de Productos, Proveedores, Pedidos, Ventas y Reportes."""
+"""API REST views for InvenXis - Módulo de Productos, Proveedores, Pedidos, Ventas y Reportes."""
 
 import json
 import logging
@@ -736,7 +736,7 @@ def exportar_reporte_pdf(request, tipo):
         textColor=colors.HexColor('#E8A230'),
     )
 
-    elements.append(Paragraph(f"InvenSoft Pro - Reporte de {tipo}", title_style))
+    elements.append(Paragraph(f"InvenXis - Reporte de {tipo}", title_style))
     elements.append(Paragraph(f"Generado: {timezone.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
     elements.append(Spacer(1, 20))
 

@@ -32,7 +32,7 @@ export function LoginPage() {
             <Package className="w-7 h-7 text-gray-900" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Inven<span className="text-amber-500">Soft</span>
+            Inven<span className="text-amber-500">Xis</span>
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-mono">
             Sistema de Gestión de Inventarios

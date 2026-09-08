@@ -1,6 +1,6 @@
 # Security Policy
 
-We take the security of InvenSoft Pro seriously. Thanks for helping us keep the project
+We take the security of InvenXis seriously. Thanks for helping us keep the project
 and its users safe.
 
 ## Reporting a Vulnerability
@@ -28,4 +28,4 @@ can expect:
   `DEBUG=False` guards via a hardened settings block.
 - JWT access tokens are short-lived with refresh-rotation enabled.
 
-[advisories]: https://github.com/Zultes-Dev/InvenSoft-Pro/security/advisories
+[advisories]: https://github.com/Zultes-Dev/InvenXis/security/advisories

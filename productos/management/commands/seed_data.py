@@ -1,4 +1,4 @@
-"""Management command to load seed/initial data for InvenSoft Pro."""
+"""Management command to load seed/initial data for InvenXis."""
 
 import random
 from datetime import datetime, timedelta
@@ -12,7 +12,7 @@ from productos.models import Producto, Proveedor, Pedido, DetallePedido, Venta, 
 
 
 class Command(BaseCommand):
-    help = 'Carga datos de prueba para el sistema InvenSoft Pro'
+    help = 'Carga datos de prueba para el sistema InvenXis'
 
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Forzar recarga de datos')
@@ -22,14 +22,14 @@ class Command(BaseCommand):
 
         # Crear usuarios si no existen
         if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser('admin', 'admin@invensoft.com', 'admin')
+            User.objects.create_superuser('admin', 'admin@invenxis.com', 'admin')
             self.stdout.write('  Usuario admin creado (admin/admin)')
         else:
             self.stdout.write('  Usuario admin ya existe')
 
         operador, created = User.objects.get_or_create(
             username='operador',
-            defaults={'email': 'operador@invensoft.com', 'is_staff': True}
+            defaults={'email': 'operador@invenxis.com', 'is_staff': True}
         )
         if created:
             operador.set_password('operador123')

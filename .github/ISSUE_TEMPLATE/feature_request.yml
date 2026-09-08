@@ -5,7 +5,7 @@ labels: [enhancement]
 body:
   - type: markdown
     attributes:
-      value: "Suggest something that would make InvenSoft Pro better."
+      value: "Suggest something that would make InvenXis better."
   - type: textarea
     id: problem
     attributes:

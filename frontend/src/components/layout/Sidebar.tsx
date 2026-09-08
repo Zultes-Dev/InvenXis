@@ -33,11 +33,11 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="flex items-center justify-between px-4 h-16 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-sm font-bold text-gray-900 shadow-lg shadow-amber-500/25">
-              IS
+              IX
             </div>
             <div>
               <div className="text-sm font-bold text-gray-900 dark:text-white">
-                Inven<span className="text-amber-500">Soft</span>
+                Inven<span className="text-amber-500">Xis</span>
               </div>
               <div className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Gestión de Inventarios</div>
             </div>

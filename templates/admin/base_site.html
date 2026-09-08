@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ title }} | {{ site_title|default:_('InvenSoft-Pro') }}{% endblock %}
+{% block title %}{{ title }} | {{ site_title|default:_('InvenXis') }}{% endblock %}
 
 {% block extrastyle %}
   {{ block.super }}
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block branding %}
-  <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('InvenSoft-Pro') }}</a></h1>
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('InvenXis') }}</a></h1>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}

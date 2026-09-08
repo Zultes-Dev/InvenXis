@@ -1,6 +1,6 @@
 """
 Django settings for config project.
-Sistema de Gestión de Inventarios — InvenSoft Pro
+Sistema de Gestión de Inventarios — InvenXis
 """
 
 import os
@@ -170,7 +170,7 @@ REST_FRAMEWORK = {
 
 # Spectacular (OpenAPI/Swagger)
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'InvenSoft Pro API',
+    'TITLE': 'InvenXis API',
     'DESCRIPTION': 'API REST para Sistema de Gestión de Inventarios',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,

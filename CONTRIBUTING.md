@@ -1,4 +1,4 @@
-# Contributing to InvenSoft Pro
+# Contributing to InvenXis
 
 Thanks for your interest in contributing! Please take a moment to read this guide.
 

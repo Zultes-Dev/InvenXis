@@ -1,4 +1,4 @@
-"""Pytest configuration for InvenSoft Pro tests."""
+"""Pytest configuration for InvenXis tests."""
 import os
 import django
 from pathlib import Path

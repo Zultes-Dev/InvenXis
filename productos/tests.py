@@ -1,4 +1,4 @@
-"""Tests for InvenSoft Pro - Sistema de Gestión de Inventarios."""
+"""Tests for InvenXis - Sistema de Gestión de Inventarios."""
 
 import json
 from decimal import Decimal

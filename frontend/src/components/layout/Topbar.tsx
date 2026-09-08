@@ -25,7 +25,7 @@ export function Topbar({ title, subtitle, onMenuToggle }: TopbarProps) {
             <h1 className="text-base font-bold text-gray-900 dark:text-white">{title}</h1>
             {subtitle && (
               <p className="text-xs font-mono text-gray-500 dark:text-gray-400">
-                InvenSoft / <span className="text-amber-500 dark:text-amber-400">{subtitle}</span>
+                InvenXis / <span className="text-amber-500 dark:text-amber-400">{subtitle}</span>
               </p>
             )}
           </div>
