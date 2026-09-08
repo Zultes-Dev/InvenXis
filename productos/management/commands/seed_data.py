@@ -15,9 +15,22 @@ class Command(BaseCommand):
     help = 'Carga datos de prueba para el sistema InvenXis'
 
     def add_arguments(self, parser):
-        parser.add_argument('--force', action='store_true', help='Forzar recarga de datos')
+        parser.add_argument('--force', action='store_true', help='Purgar datos demo y resembrar canónico determinista')
+
+    def _purge_demo_data(self):
+        """Elimina datos demo en orden seguro de FK (detalles primero)."""
+        self.stdout.write(self.style.WARNING('=== Purgando datos demo (--force) ==='))
+        DetalleVenta.objects.all().delete()
+        Venta.objects.all().delete()
+        DetallePedido.objects.all().delete()
+        Pedido.objects.all().delete()
+        Producto.objects.all().delete()
+        Proveedor.objects.all().delete()
 
     def handle(self, *args, **options):
+        if options['force']:
+            random.seed(42)
+            self._purge_demo_data()
         self.stdout.write(self.style.SUCCESS('=== Cargando datos de prueba ==='))
 
         # Crear usuarios si no existen
