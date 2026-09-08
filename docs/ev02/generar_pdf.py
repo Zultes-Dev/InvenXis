@@ -338,9 +338,10 @@ def main():
     el.append(P('8. Anexos', sH1))
     for a in ['<b>Anexo A:</b> diagrama entidad-relación — <font face="Courier" size="8">docs/ev02/ER-InvenXis.svg '
               '</font>(11 entidades, 13 relaciones; Mermaid en <font face="Courier" size="8">ER-InvenXis.mmd</font>).',
-              '<b>Anexo B:</b> capturas del sistema funcionando — <font face="Courier" size="8">docs/ev02/anexos/'
-              '01-login.png, 02-dashboard.png, 03-productos.png, 04-facturacion.png</font> (tomadas con Playwright '
-              'contra el sistema real).',
+              '<b>Anexo B:</b> capturas por módulo — <font face="Courier" size="8">docs/ev02/anexos/'
+              '01-login.png, 02-dashboard.png, 03-productos.png, 04-proveedores.png, 05-ventas.png, '
+              '06-facturacion.png, 07-reportes.png</font> (tomadas con Playwright contra el sistema real, una por '
+              'módulo).',
               '<b>Anexo C:</b> repositorio remoto con historial de commits — ' + REPO + '.']:
         el.append(P(f'• {a}', sBody))
 

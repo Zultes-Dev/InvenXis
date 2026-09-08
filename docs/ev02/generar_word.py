@@ -250,8 +250,9 @@ def main():
     titulo(doc, '8. Anexos')
     doc.add_paragraph('Anexo A: diagrama entidad-relación — docs/ev02/ER-InvenXis.svg (11 entidades, '
                       '13 relaciones; Mermaid en ER-InvenXis.mmd).', style='List Bullet')
-    doc.add_paragraph('Anexo B: capturas del sistema funcionando — docs/ev02/anexos/01-login.png, '
-                      '02-dashboard.png, 03-productos.png, 04-facturacion.png (Playwright contra el sistema real).',
+    doc.add_paragraph('Anexo B: capturas por módulo — docs/ev02/anexos/01-login.png, '
+                      '02-dashboard.png, 03-productos.png, 04-proveedores.png, 05-ventas.png, '
+                      '06-facturacion.png, 07-reportes.png (Playwright contra el sistema real, una por módulo).',
                       style='List Bullet')
     doc.add_paragraph(f'Anexo C: repositorio remoto con historial — {REPO}.', style='List Bullet')
 
