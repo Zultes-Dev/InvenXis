@@ -12,8 +12,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
@@ -61,6 +62,12 @@ def api_response(data=None, status_code=status.HTTP_200_OK, success=True, errors
     return Response(payload, status=status_code)
 
 
+def invalidate_dashboard():
+    """Invalida el caché del dashboard tras escrituras de inventario."""
+    from django.core.cache import cache
+    cache.delete('dashboard_api:v1')
+
+
 # =============================================================================
 # AUTH
 # =============================================================================
@@ -70,8 +77,13 @@ from django.contrib.auth import authenticate
 from .serializers import LoginSerializer
 
 
+class LoginRateThrottle(AnonRateThrottle):
+    scope = 'login'
+
+
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+@throttle_classes([LoginRateThrottle])
 def api_login(request):
     """Autenticación de usuario. Retorna tokens JWT."""
     serializer = LoginSerializer(data=request.data)
@@ -158,6 +170,25 @@ def api_logout(request):
 
 
 @api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def api_health(request):
+    """Health check público para monitoreo/orquestadores."""
+    from django.db import connection
+    try:
+        with connection.cursor() as cur:
+            cur.execute('SELECT 1')
+        db = 'ok'
+    except Exception:  # noqa: BLE001 - health nunca debe romper
+        logger.exception('Healthcheck: DB no disponible')
+        db = 'error'
+    payload = {'status': 'ok' if db == 'ok' else 'degraded', 'db': db, 'version': '1.0.0'}
+    return api_response(
+        payload,
+        status_code=status.HTTP_200_OK if db == 'ok' else status.HTTP_503_SERVICE_UNAVAILABLE,
+    )
+
+
+@api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def api_me(request):
     """Obtener información del usuario autenticado."""
@@ -222,6 +253,7 @@ class ProductoListCreateView(APIView):
         serializer = ProductoSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         producto = serializer.save()
+        invalidate_dashboard()
         logger.info("Producto creado: %s (ID: %d)", producto.nombre, producto.pk)
         return api_response(
             data=ProductoSerializer(producto).data,
@@ -251,6 +283,7 @@ class ProductoDetailView(APIView):
         serializer = ProductoSerializer(producto, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        invalidate_dashboard()
         logger.info("Producto actualizado: %s (ID: %d)", producto.nombre, pk)
         return api_response(serializer.data)
 
@@ -259,12 +292,14 @@ class ProductoDetailView(APIView):
         serializer = ProductoSerializer(producto, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        invalidate_dashboard()
         return api_response(serializer.data)
 
     def delete(self, request, pk):
         producto = self.get_object(pk)
         nombre = producto.nombre
         producto.delete()
+        invalidate_dashboard()
         logger.info("Producto eliminado: %s (ID: %d)", nombre, pk)
         return api_response(status_code=status.HTTP_204_NO_CONTENT, data={'message': f'Producto "{nombre}" eliminado'})
 
@@ -284,7 +319,7 @@ class ProveedorListCreateView(APIView):
         queryset = Proveedor.objects.annotate(
             productos_count=Count('productos', distinct=True),
             pedidos_count=Count('pedidos', distinct=True),
-        )
+        ).order_by('-fecha_creacion')
 
         estado = request.query_params.get('estado')
         if estado:
@@ -310,6 +345,7 @@ class ProveedorListCreateView(APIView):
         serializer = ProveedorSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         proveedor = serializer.save()
+        invalidate_dashboard()
         logger.info("Proveedor creado: %s (ID: %d)", proveedor.razon_social, proveedor.pk)
         return api_response(
             data=ProveedorSerializer(proveedor).data,
@@ -345,6 +381,7 @@ class ProveedorDetailView(APIView):
         serializer = ProveedorSerializer(proveedor, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        invalidate_dashboard()
         return api_response(serializer.data)
 
     def patch(self, request, pk):
@@ -352,12 +389,14 @@ class ProveedorDetailView(APIView):
         serializer = ProveedorSerializer(proveedor, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        invalidate_dashboard()
         return api_response(serializer.data)
 
     def delete(self, request, pk):
         proveedor = self.get_object(pk)
         nombre = proveedor.razon_social
         proveedor.delete()
+        invalidate_dashboard()
         logger.info("Proveedor eliminado: %s (ID: %d)", nombre, pk)
         return api_response(status_code=status.HTTP_204_NO_CONTENT, data={'message': f'Proveedor "{nombre}" eliminado'})
 
@@ -480,8 +519,7 @@ class VentaListCreateView(APIView):
         serializer = VentaCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         venta = serializer.save(creado_por=request.user)
-        from django.core.cache import cache
-        cache.delete('dashboard_api:v1')
+        invalidate_dashboard()
 
         return api_response(
             data=VentaSerializer(venta).data,

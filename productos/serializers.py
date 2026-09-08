@@ -1,3 +1,4 @@
+import uuid
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
@@ -186,7 +187,8 @@ class VentaCreateSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             if not validated_data.get('numero_factura'):
                 validated_data['numero_factura'] = (
-                    f"FAC-{timezone.now().strftime('%Y%m%d%H%M%S%f')}")
+                    f"FAC-{timezone.now().strftime('%Y%m%d')}"
+                    f"-{uuid.uuid4().hex[:8].upper()}")
             venta = Venta.objects.create(**validated_data)
             for detalle_data in detalles_data:
                 producto = Producto.objects.select_for_update().get(

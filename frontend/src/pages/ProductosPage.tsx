@@ -259,10 +259,10 @@ export default function ProductosPage() {
       className: 'text-right',
       render: (item: ProductoListItem) => (
         <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="sm" onClick={() => openEditModal(item)}>
+          <Button variant="ghost" size="sm" aria-label={`Editar ${item.nombre}`} onClick={() => openEditModal(item)}>
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => openDeleteModal(item)}>
+          <Button variant="ghost" size="sm" aria-label={`Eliminar ${item.nombre}`} onClick={() => openDeleteModal(item)}>
             <Trash2 className="w-4 h-4 text-red-500" />
           </Button>
         </div>

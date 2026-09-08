@@ -6,6 +6,9 @@ app_name = 'productos'
 # API montada en /api/ (ver config/urls.py). Nombres compatibles con
 # reverse('productos:api_*') usado en tests y frontend (/api/*).
 urlpatterns = [
+    # Health (público, sin auth)
+    path('health/', api_views.api_health, name='api_health'),
+
     # Auth
     path('auth/login/', api_views.api_login, name='api_login'),
     path('auth/refresh/', api_views.api_refresh_token, name='api_refresh'),

@@ -111,7 +111,8 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
         <button
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="px-2 py-1 text-xs font-mono rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          aria-label="Página anterior"
+          className="px-2 py-1 text-xs font-mono rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
         >
           Anterior
         </button>
@@ -120,8 +121,10 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
             <button
               key={i}
               onClick={() => onPageChange(p)}
+              aria-label={`Ir a página ${p}`}
+              aria-current={p === page ? 'page' : undefined}
               className={clsx(
-                'px-2.5 py-1 text-xs font-mono rounded transition-colors',
+                'px-2.5 py-1 text-xs font-mono rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
                 p === page
                   ? 'bg-amber-500 text-gray-900 font-bold'
                   : 'border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -130,13 +133,14 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
               {p}
             </button>
           ) : (
-            <span key={i} className="px-1 text-gray-400">...</span>
+            <span key={i} className="px-1 text-gray-400" aria-hidden="true">...</span>
           )
         ))}
         <button
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="px-2 py-1 text-xs font-mono rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          aria-label="Página siguiente"
+          className="px-2 py-1 text-xs font-mono rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
         >
           Siguiente
         </button>
