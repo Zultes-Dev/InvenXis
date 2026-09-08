@@ -342,7 +342,10 @@ def main():
               '01-login.png, 02-dashboard.png, 03-productos.png, 04-proveedores.png, 05-ventas.png, '
               '06-facturacion.png, 07-reportes.png</font> (tomadas con Playwright contra el sistema real, una por '
               'módulo).',
-              '<b>Anexo C:</b> repositorio remoto con historial de commits — ' + REPO + '.']:
+              '<b>Anexo C:</b> repositorio remoto con historial de commits — ' + REPO + '.',
+              '<b>Anexo D:</b> código por módulo — <font face="Courier" size="8">docs/ev02/anexos/codigo-01-'
+              'autenticacion.png … codigo-07-frontend.png</font> (extractos reales con resaltado, generados con '
+              '<font face="Courier" size="8">docs/ev02/generar_codigo_png.py</font>).']:
         el.append(P(f'• {a}', sBody))
 
     doc.multiBuild(el, onFirstPage=pie, onLaterPages=pie)

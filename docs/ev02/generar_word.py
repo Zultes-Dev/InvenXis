@@ -255,6 +255,9 @@ def main():
                       '06-facturacion.png, 07-reportes.png (Playwright contra el sistema real, una por módulo).',
                       style='List Bullet')
     doc.add_paragraph(f'Anexo C: repositorio remoto con historial — {REPO}.', style='List Bullet')
+    doc.add_paragraph('Anexo D: código por módulo — docs/ev02/anexos/codigo-01-autenticacion.png … '
+                      'codigo-07-frontend.png (extractos reales con resaltado, generados con '
+                      'docs/ev02/generar_codigo_png.py).', style='List Bullet')
 
     out = 'docs/ev02/EV02-InvenXis-GA8-220501096-AA1-EV02.docx'
     doc.save(out)
