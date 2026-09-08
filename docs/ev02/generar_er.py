@@ -155,8 +155,8 @@ def svg():
          f'font-family="Helvetica, Arial, sans-serif">',
          '<defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" '
          'orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#555"/></marker></defs>',
-         f'<text x="{X0}" y="32" font-size="12" fill="#666">Generado por introspección de '
-         'los modelos Django (docs/ev02/generar_er.py)</text>']
+         f'<text x="{X0}" y="32" font-size="22" font-weight="bold" fill="{VERDE}">'
+         'InvenXis — Diagrama Entidad-Relación</text>']
     for o, d, card, campo in relaciones():
         if o not in pos or d not in pos:
             continue
