@@ -1,3 +1,6 @@
+from django.db import transaction
+from django.db.models import F
+from django.utils import timezone
 from rest_framework import serializers
 from .models import Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta
 
@@ -177,11 +180,33 @@ class VentaCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         detalles_data = validated_data.pop('detalles')
-        venta = Venta.objects.create(**validated_data)
-        for detalle_data in detalles_data:
-            DetalleVenta.objects.create(venta=venta, **detalle_data)
-        venta.calcular_total()
-        return venta
+        if not detalles_data:
+            raise serializers.ValidationError(
+                {'detalles': 'La venta debe incluir al menos un producto.'})
+        with transaction.atomic():
+            if not validated_data.get('numero_factura'):
+                validated_data['numero_factura'] = (
+                    f"FAC-{timezone.now().strftime('%Y%m%d%H%M%S%f')}")
+            venta = Venta.objects.create(**validated_data)
+            for detalle_data in detalles_data:
+                producto = Producto.objects.select_for_update().get(
+                    pk=detalle_data['producto'].pk
+                    if hasattr(detalle_data.get('producto'), 'pk')
+                    else detalle_data['producto'])
+                cantidad = detalle_data['cantidad']
+                if producto.cantidad < cantidad:
+                    raise serializers.ValidationError(
+                        {'detalles': (
+                            f"Stock insuficiente para {producto.nombre}: "
+                            f"disponible {producto.cantidad}, "
+                            f"solicitado {cantidad}.")})
+                if not detalle_data.get('precio_unitario'):
+                    detalle_data['precio_unitario'] = producto.precio
+                DetalleVenta.objects.create(venta=venta, **detalle_data)
+                Producto.objects.filter(pk=producto.pk).update(
+                    cantidad=F('cantidad') - cantidad)
+            venta.calcular_total()
+            return venta
 
 
 class LoginSerializer(serializers.Serializer):

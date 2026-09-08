@@ -1,14 +1,27 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, ThemeProvider, useAuth } from './contexts';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
-import ProductosPage from './pages/ProductosPage';
-import ProveedoresPage from './pages/ProveedoresPage';
-import { VentasPage } from './pages/VentasPage';
-import { ReportesPage } from './pages/ReportesPage';
 import { Toaster } from 'react-hot-toast';
 import type { ReactNode } from 'react';
+
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const ProductosPage = lazy(() => import('./pages/ProductosPage'));
+const ProveedoresPage = lazy(() => import('./pages/ProveedoresPage'));
+const VentasPage = lazy(() =>
+  import('./pages/VentasPage').then((m) => ({ default: m.VentasPage })));
+const ReportesPage = lazy(() =>
+  import('./pages/ReportesPage').then((m) => ({ default: m.ReportesPage })));
+
+function PageFallback() {
+  return (
+    <div className="min-h-[40vh] flex items-center justify-center">
+      <div className="animate-spin h-10 w-10 border-2 border-amber-500 border-t-transparent rounded-full mx-auto" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -41,17 +54,19 @@ function PublicRoute({ children }: { children: ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/productos" element={<ProductosPage />} />
-        <Route path="/proveedores" element={<ProveedoresPage />} />
-        <Route path="/ventas" element={<VentasPage />} />
-        <Route path="/reportes" element={<ReportesPage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <Suspense fallback={<PageFallback />}>
+      <Routes>
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/productos" element={<ProductosPage />} />
+          <Route path="/proveedores" element={<ProveedoresPage />} />
+          <Route path="/ventas" element={<VentasPage />} />
+          <Route path="/reportes" element={<ReportesPage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

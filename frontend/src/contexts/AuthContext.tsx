@@ -65,8 +65,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.clear();
-    setUser(null);
+    const refresh = localStorage.getItem('refresh_token');
+    if (refresh) {
+      authApi.logout(refresh).catch(() => undefined).finally(() => {
+        localStorage.clear();
+        setUser(null);
+      });
+    } else {
+      localStorage.clear();
+      setUser(null);
+    }
   };
 
   return (

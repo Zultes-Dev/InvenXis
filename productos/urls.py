@@ -31,6 +31,7 @@ api_urls = [
     # Auth
     path('api/auth/login/', api_views.api_login, name='api_login'),
     path('api/auth/refresh/', api_views.api_refresh_token, name='api_refresh'),
+    path('api/auth/logout/', api_views.api_logout, name='api_logout'),
     path('api/auth/me/', api_views.api_me, name='api_me'),
 
     # Productos

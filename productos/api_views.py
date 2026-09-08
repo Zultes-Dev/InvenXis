@@ -132,6 +132,31 @@ def api_refresh_token(request):
         )
 
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def api_logout(request):
+    """Logout: blacklista el refresh token."""
+    from rest_framework_simplejwt.tokens import RefreshToken
+    from rest_framework_simplejwt.exceptions import TokenError
+
+    refresh_token = request.data.get('refresh')
+    if not refresh_token:
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            success=False,
+            errors=[{'message': 'Refresh token requerido', 'code': 'missing_token'}]
+        )
+    try:
+        RefreshToken(refresh_token).blacklist()
+    except TokenError as e:
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            success=False,
+            errors=[{'message': str(e), 'code': 'invalid_token'}]
+        )
+    return api_response(data={'message': 'Sesión cerrada'})
+
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def api_me(request):
@@ -455,16 +480,8 @@ class VentaListCreateView(APIView):
         serializer = VentaCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         venta = serializer.save(creado_por=request.user)
-        venta.calcular_total()
-
-        # Descontar stock
-        for detalle in venta.detalles.all():
-            producto = detalle.producto
-            if producto.cantidad >= detalle.cantidad:
-                producto.cantidad -= detalle.cantidad
-                producto.save(update_fields=['cantidad'])
-            else:
-                logger.warning("Stock insuficiente para %s: %d < %d", producto.nombre, producto.cantidad, detalle.cantidad)
+        from django.core.cache import cache
+        cache.delete('dashboard_api:v1')
 
         return api_response(
             data=VentaSerializer(venta).data,
@@ -825,6 +842,10 @@ def exportar_reporte_pdf(request, tipo):
 @permission_classes([permissions.IsAuthenticated])
 def dashboard_api(request):
     """Obtener datos del dashboard (KPI, resumen, actividad reciente)."""
+    from django.core.cache import cache
+    cached = cache.get('dashboard_api:v1')
+    if cached is not None:
+        return api_response(cached)
     total_productos = Producto.objects.count()
     stock_bajo = Producto.objects.filter(cantidad__gt=0, cantidad__lte=F('stock_min')).count()
     sin_stock = Producto.objects.filter(cantidad=0).count()
@@ -846,7 +867,7 @@ def dashboard_api(request):
         many=True
     ).data
 
-    return api_response({
+    payload = {
         'kpi': {
             'total_productos': total_productos,
             'stock_bajo': stock_bajo,
@@ -861,4 +882,7 @@ def dashboard_api(request):
         },
         'productos_recientes': productos_recientes,
         'pedidos_recientes': pedidos_recientes,
-    })
+    }
+    from django.core.cache import cache
+    cache.set('dashboard_api:v1', payload, 60)
+    return api_response(payload)
