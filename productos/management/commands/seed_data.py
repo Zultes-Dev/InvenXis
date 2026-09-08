@@ -27,6 +27,28 @@ class Command(BaseCommand):
         Producto.objects.all().delete()
         Proveedor.objects.all().delete()
 
+    def _seed_groups(self):
+        """RBAC demo: Administradores (todo) y Operadores (ver/crear/editar)."""
+        from django.contrib.auth.models import Group, Permission
+        app_perms = Permission.objects.filter(content_type__app_label='productos')
+        admins, _ = Group.objects.get_or_create(name='Administradores')
+        admins.permissions.set(app_perms)
+        op_codes = {
+            f'{action}_{model}'
+            for action in ('view', 'add', 'change')
+            for model in ('producto', 'proveedor', 'pedido', 'detallepedido',
+                          'venta', 'detalleventa')
+        }
+        operadores, _ = Group.objects.get_or_create(name='Operadores')
+        operadores.permissions.set(app_perms.filter(codename__in=op_codes))
+        admin_user = User.objects.filter(username='admin').first()
+        if admin_user:
+            admin_user.groups.add(admins)
+        operador = User.objects.filter(username='operador').first()
+        if operador:
+            operador.groups.add(operadores)
+        self.stdout.write('  Grupos RBAC: Administradores (total) + Operadores (ver/crear/editar)')
+
     def handle(self, *args, **options):
         if options['force']:
             random.seed(42)
@@ -53,6 +75,8 @@ class Command(BaseCommand):
                 operador.is_staff = True
                 operador.save()
             self.stdout.write('  Usuario operador actualizado (operador/operador123)')
+
+        self._seed_groups()
 
         # Proveedores
         proveedores_data = [

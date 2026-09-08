@@ -148,6 +148,7 @@ body::before {
 
     <form class="login-form" method="post">
       {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
       <div class="login-error show" id="loginError" {% if not form.errors %}style="display:none"{% endif %}>
         <strong>Error:</strong> Usuario o contraseña incorrectos. Inténtalo de nuevo.
