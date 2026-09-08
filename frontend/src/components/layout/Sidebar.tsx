@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard, Package, Truck, ShoppingCart, FileBarChart, LogOut,
-  ChevronLeft
+  ChevronLeft, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../contexts';
 
@@ -19,8 +19,17 @@ const navItems = [
   { to: '/reportes', icon: FileBarChart, label: 'Reportes' },
 ];
 
+/** URL del panel Django admin: en dev el backend corre en :8000. */
+function resolveAdminUrl(): string {
+  if (typeof window !== 'undefined' && window.location.port === '3000') {
+    return `${window.location.protocol}//127.0.0.1:8000/admin/`;
+  }
+  return '/admin/';
+}
+
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
+  const adminUrl = resolveAdminUrl();
 
   return (
     <>
@@ -89,9 +98,22 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 {user?.is_staff ? 'admin' : 'operador'}
               </p>
             </div>
+            {user?.is_staff && (
+              <a
+                href={adminUrl}
+                target="_blank"
+                rel="noreferrer"
+                title="Panel de administración"
+                aria-label="Panel de administración"
+                className="p-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-500/10 text-gray-400 hover:text-amber-500 transition-colors"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </a>
+            )}
             <button
               onClick={logout}
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
               className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
