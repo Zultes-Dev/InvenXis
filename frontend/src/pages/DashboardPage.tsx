@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-import { dashboardApi } from '../api';
-import type { DashboardData } from '../types/api';
+import { useDashboard } from '../hooks/useApi';
 import { PageSpinner } from '../components/ui/Spinner';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -29,34 +27,15 @@ const colorClasses: Record<string, { bg: string; text: string; bar: string }> = 
 };
 
 export function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const response = await dashboardApi.get();
-      setData(response.data.data || response.data);
-    } catch {
-      setError('Error al cargar el dashboard');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data, isLoading: loading, isError: error, refetch } = useDashboard();
 
   if (loading) return <PageSpinner />;
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
-        <p className="text-red-500 font-mono text-sm mb-4">{error}</p>
-        <button onClick={fetchData} className="px-4 py-2 bg-amber-500 text-gray-900 rounded-lg text-sm font-semibold hover:bg-amber-400 transition-colors">
+        <p className="text-red-500 font-mono text-sm mb-4">Error al cargar el dashboard</p>
+        <button onClick={() => refetch()} className="px-4 py-2 bg-amber-500 text-gray-900 rounded-lg text-sm font-semibold hover:bg-amber-400 transition-colors">
           Reintentar
         </button>
       </div>

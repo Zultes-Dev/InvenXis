@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { productosApi, proveedoresApi } from '../api';
-import type { ProductoListItem, ProveedorListItem } from '../types/api';
+import { useEffect, useMemo, useState } from 'react';
+import { productosApi } from '../api';
+import { useProductos, useProveedoresActivos, useProductoMutations } from '../hooks/useApi';
+import type { ProductoListItem } from '../types/api';
 import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
@@ -37,29 +38,20 @@ type FilterEstado = '' | 'activo' | 'inactivo';
 type FilterStock = 'todos' | 'Normal' | 'Stock Bajo' | 'Sin Stock';
 
 export default function ProductosPage() {
-  const [productos, setProductos] = useState<ProductoListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterEstado, setFilterEstado] = useState<FilterEstado>('');
   const [filterStock, setFilterStock] = useState<FilterStock>('todos');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<ProductoFormData>(emptyFormData);
-  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingName, setDeletingName] = useState('');
-  const [deleting, setDeleting] = useState(false);
-
-  const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
 
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -71,44 +63,38 @@ export default function ProductosPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchProductos = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params: Record<string, string | number | boolean> = { page, page_size: 15 };
-      if (debouncedSearch) params.search = debouncedSearch;
-      if (filterEstado) params.estado = filterEstado;
-      if (filterStock !== 'todos') params.estado_stock = filterStock;
-      const res = await productosApi.list(params);
-      setProductos(res.data.results);
-      setTotalPages(res.data.total_pages);
-      setTotal(res.data.count);
-    } catch {
-      setError('Error al cargar productos');
-    } finally {
-      setLoading(false);
-    }
+  const listParams = useMemo(() => {
+    const params: Record<string, string | number | boolean> = { page, page_size: 15 };
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (filterEstado) params.estado = filterEstado;
+    if (filterStock !== 'todos') params.estado_stock = filterStock;
+    return params;
   }, [page, debouncedSearch, filterEstado, filterStock]);
 
-  useEffect(() => {
-    fetchProductos();
-  }, [fetchProductos]);
+  const productosQuery = useProductos(listParams);
+  const productos = productosQuery.data?.results ?? [];
+  const totalPages = productosQuery.data?.total_pages ?? 1;
+  const total = productosQuery.data?.count ?? 0;
+  const loading = productosQuery.isLoading;
+  const fetching = productosQuery.isFetching;
+  const error = productosQuery.isError ? 'Error al cargar productos' : null;
+
+  const { data: proveedoresActivos } = useProveedoresActivos(modalOpen);
+  const proveedores = proveedoresActivos?.results ?? [];
+
+  const mutations = useProductoMutations();
+  const saving = mutations.create.isPending || mutations.update.isPending;
+  const deleting = mutations.remove.isPending;
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const openCreateModal = async () => {
+  const openCreateModal = () => {
     setEditingId(null);
     setFormData(emptyFormData);
     setFormError(null);
-    try {
-      const res = await proveedoresApi.list({ page_size: 100, estado: 'activo' });
-      setProveedores(res.data.results);
-    } catch {
-      setProveedores([]);
-    }
     setModalOpen(true);
   };
 
@@ -126,11 +112,7 @@ export default function ProductosPage() {
     });
     setFormError(null);
     try {
-      const [proveedoresRes, productoRes] = await Promise.all([
-        proveedoresApi.list({ page_size: 100, estado: 'activo' }),
-        productosApi.get(producto.id),
-      ]);
-      setProveedores(proveedoresRes.data.results);
+      const productoRes = await productosApi.get(producto.id);
       const full = productoRes.data.data;
       setFormData({
         nombre: full.nombre,
@@ -143,7 +125,7 @@ export default function ProductosPage() {
         estado: full.estado,
       });
     } catch {
-      setProveedores([]);
+      // conserva los datos de la fila si falla el detalle
     }
     setModalOpen(true);
   };
@@ -152,37 +134,40 @@ export default function ProductosPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formData.nombre.trim()) {
       setFormError('El nombre es obligatorio');
       return;
     }
-    setSaving(true);
     setFormError(null);
-    try {
-      const payload = {
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        categoria: formData.categoria,
-        precio: Number(formData.precio),
-        cantidad: Number(formData.cantidad),
-        stock_min: Number(formData.stock_min),
-        proveedor: formData.proveedor ? Number(formData.proveedor) : null,
-        estado: formData.estado,
-      };
-      if (editingId) {
-        await productosApi.update(editingId, payload);
-        showNotification('success', 'Producto actualizado exitosamente');
-      } else {
-        await productosApi.create(payload);
-        showNotification('success', 'Producto creado exitosamente');
-      }
+    const payload = {
+      nombre: formData.nombre,
+      descripcion: formData.descripcion,
+      categoria: formData.categoria,
+      precio: Number(formData.precio),
+      cantidad: Number(formData.cantidad),
+      stock_min: Number(formData.stock_min),
+      proveedor: formData.proveedor ? Number(formData.proveedor) : null,
+      estado: formData.estado,
+    };
+    const onSuccess = (message: string) => {
+      showNotification('success', message);
       setModalOpen(false);
-      fetchProductos();
-    } catch {
-      setFormError('Error al guardar el producto');
-    } finally {
-      setSaving(false);
+    };
+    const onError = () => setFormError('Error al guardar el producto');
+    if (editingId) {
+      mutations.update.mutate(
+        { id: editingId, payload },
+        {
+          onSuccess: () => onSuccess('Producto actualizado exitosamente'),
+          onError,
+        },
+      );
+    } else {
+      mutations.create.mutate(payload, {
+        onSuccess: () => onSuccess('Producto creado exitosamente'),
+        onError,
+      });
     }
   };
 
@@ -192,20 +177,16 @@ export default function ProductosPage() {
     setDeleteModalOpen(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (deletingId === null) return;
-    setDeleting(true);
-    try {
-      await productosApi.delete(deletingId);
-      showNotification('success', 'Producto eliminado exitosamente');
-      setDeleteModalOpen(false);
-      setDeletingId(null);
-      fetchProductos();
-    } catch {
-      showNotification('error', 'Error al eliminar el producto');
-    } finally {
-      setDeleting(false);
-    }
+    mutations.remove.mutate(deletingId, {
+      onSuccess: () => {
+        showNotification('success', 'Producto eliminado exitosamente');
+        setDeleteModalOpen(false);
+        setDeletingId(null);
+      },
+      onError: () => showNotification('error', 'Error al eliminar el producto'),
+    });
   };
 
   const filterStockPills: FilterStock[] = ['todos', 'Normal', 'Stock Bajo', 'Sin Stock'];
@@ -389,7 +370,7 @@ export default function ProductosPage() {
         {error ? (
           <div className="p-6 text-center">
             <p className="text-red-500 text-sm">{error}</p>
-            <Button variant="secondary" size="sm" className="mt-3" onClick={fetchProductos}>
+            <Button variant="secondary" size="sm" className="mt-3" onClick={() => productosQuery.refetch()}>
               Reintentar
             </Button>
           </div>
@@ -399,7 +380,7 @@ export default function ProductosPage() {
               columns={columns}
               data={productos}
               keyExtractor={(item) => item.id}
-              loading={loading}
+              loading={loading || fetching}
               emptyMessage="No se encontraron productos"
             />
             {totalPages > 1 && (

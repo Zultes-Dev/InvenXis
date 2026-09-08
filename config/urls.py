@@ -7,24 +7,23 @@ from django.conf.urls.static import static
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
-admin.site.site_url = '/productos/'
 admin.site.site_header = 'InvenXis - Administración'
 admin.site.site_title = 'InvenXis Admin'
 
 
 def root_redirect(request):
-    if request.user.is_authenticated:
-        return redirect('productos:dashboard')
-    return redirect('login')
+    # API-first: la UI vive en la SPA (frontend/). La raíz expone la
+    # documentación interactiva de la API.
+    return redirect('swagger-ui')
 
 
 urlpatterns = [
     path('', root_redirect),
     path('admin/', admin.site.urls),
-    path('productos/', include('productos.urls')),
+    path('api/', include('productos.urls_api')),
     path('accounts/login/', auth_views.LoginView.as_view(
         template_name='registration/login.html',
-        next_page='productos:dashboard'
+        next_page='swagger-ui'
     ), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 

@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { ventasApi, productosApi } from '../api';
-import type { VentaListItem, ProductoListItem } from '../types/api';
+import { useMemo, useState } from 'react';
+import { ventasApi } from '../api';
+import { useVentas, useCreateVenta, useProductos } from '../hooks/useApi';
+
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
@@ -51,49 +52,33 @@ function emptyForm(): VentaForm {
 }
 
 export function VentasPage() {
-  const [ventas, setVentas] = useState<VentaListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [productos, setProductos] = useState<ProductoListItem[]>([]);
   const [filter, setFilter] = useState<VentaFilter>({ estado: '', desde: '', hasta: '', page: 1, page_size: 15 });
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<VentaForm>(emptyForm());
-  const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
-  const fetchVentas = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params: Record<string, string | number | boolean> = { page: filter.page, page_size: filter.page_size };
-      if (filter.estado) params.estado = filter.estado;
-      if (filter.desde) params.desde = filter.desde;
-      if (filter.hasta) params.hasta = filter.hasta;
-      const res = await ventasApi.list(params);
-      setVentas(res.data.results);
-      setTotalPages(res.data.total_pages);
-      setTotalCount(res.data.count);
-    } catch {
-      setError('Error al cargar las ventas');
-    } finally {
-      setLoading(false);
-    }
+  const listParams = useMemo(() => {
+    const params: Record<string, string | number | boolean> = { page: filter.page, page_size: filter.page_size };
+    if (filter.estado) params.estado = filter.estado;
+    if (filter.desde) params.desde = filter.desde;
+    if (filter.hasta) params.hasta = filter.hasta;
+    return params;
   }, [filter]);
 
-  const fetchProductos = useCallback(async () => {
-    try {
-      const res = await productosApi.list({ page_size: 200 });
-      setProductos(res.data.results);
-    } catch {
-      // silent
-    }
-  }, []);
+  const ventasQuery = useVentas(listParams);
+  const ventas = ventasQuery.data?.results ?? [];
+  const totalPages = ventasQuery.data?.total_pages ?? 1;
+  const totalCount = ventasQuery.data?.count ?? 0;
+  const loading = ventasQuery.isLoading;
+  const error = ventasQuery.isError ? 'Error al cargar las ventas' : '';
 
-  useEffect(() => { fetchVentas(); }, [fetchVentas]);
-  useEffect(() => { if (modalOpen) fetchProductos(); }, [modalOpen, fetchProductos]);
+  const productosParams = useMemo(() => ({ page_size: 200 }), []);
+  const { data: productosData } = useProductos(productosParams);
+  const productos = productosData?.results ?? [];
+
+  const createVenta = useCreateVenta();
+  const submitting = createVenta.isPending;
 
   const handleFilterChange = (key: keyof VentaFilter, value: string | number) => {
     setFilter((prev) => ({ ...prev, [key]: value, page: key === 'page' ? (value as number) : 1 }));
@@ -144,7 +129,7 @@ export function VentasPage() {
 
   const totalVenta = form.detalles.reduce((sum, item) => sum + calcSubtotal(item), 0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -154,25 +139,19 @@ export function VentasPage() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      const payload = {
-        cliente: form.cliente || null,
-        metodo_pago: form.metodo_pago,
-        detalles: validDetalles.map((d) => ({
-          producto_id: d.producto_id,
-          cantidad: Number(d.cantidad),
-          precio_unitario: Number(d.precio_unitario),
-        })),
-      };
-      await ventasApi.create(payload);
-      closeModal();
-      fetchVentas();
-    } catch {
-      setFormError('Error al crear la venta');
-    } finally {
-      setSubmitting(false);
-    }
+    const payload = {
+      cliente: form.cliente || null,
+      metodo_pago: form.metodo_pago,
+      detalles: validDetalles.map((d) => ({
+        producto: d.producto_id,
+        cantidad: Number(d.cantidad),
+        precio_unitario: Number(d.precio_unitario),
+      })),
+    };
+    createVenta.mutate(payload, {
+      onSuccess: () => closeModal(),
+      onError: () => setFormError('Error al crear la venta'),
+    });
   };
 
   const productOptions = productos.map((p) => ({
@@ -238,7 +217,7 @@ export function VentasPage() {
       ) : error ? (
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
           <p className="text-red-500">{error}</p>
-          <Button variant="secondary" size="sm" className="mt-4" onClick={fetchVentas}>Reintentar</Button>
+          <Button variant="secondary" size="sm" className="mt-4" onClick={() => ventasQuery.refetch()}>Reintentar</Button>
         </div>
       ) : ventas.length === 0 ? (
         <EmptyState

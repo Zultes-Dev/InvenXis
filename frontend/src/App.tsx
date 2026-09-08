@@ -1,5 +1,7 @@
 import { Suspense, lazy } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { queryClient } from './lib/queryClient';
 import { AuthProvider, ThemeProvider, useAuth } from './contexts';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -72,6 +74,7 @@ function AppRoutes() {
 
 export default function App() {
   return (
+    <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
@@ -93,5 +96,6 @@ export default function App() {
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
+    </QueryClientProvider>
   );
 }

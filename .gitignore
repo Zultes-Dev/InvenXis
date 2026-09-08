@@ -32,6 +32,9 @@ htmlcov/
 node_modules/
 frontend/dist/
 frontend/dist-ssr/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
 
 # Experimental servers (not part of the published project)
 backend/

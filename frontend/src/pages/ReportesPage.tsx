@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { reportesApi } from '../api';
-import type { ReporteInventario, ReporteMasVendidos, ReporteVentas } from '../types/api';
+import {
+  useReporteInventario,
+  useReporteMasVendidos,
+  useReporteVentas,
+} from '../hooks/useApi';
 import { useTheme } from '../contexts';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader } from '../components/ui/Card';
@@ -45,69 +49,28 @@ export function ReportesPage() {
 
   const [activeTab, setActiveTab] = useState<ReportTab>('inventario');
 
-  const [inventario, setInventario] = useState<ReporteInventario | null>(null);
-  const [masVendidos, setMasVendidos] = useState<ReporteMasVendidos | null>(null);
-  const [ventas, setVentas] = useState<ReporteVentas | null>(null);
-
-  const [loadingInv, setLoadingInv] = useState(false);
-  const [loadingTop, setLoadingTop] = useState(false);
-  const [loadingVentas, setLoadingVentas] = useState(false);
-
-  const [errorInv, setErrorInv] = useState('');
-  const [errorTop, setErrorTop] = useState('');
-  const [errorVentas, setErrorVentas] = useState('');
-
   const [topN, setTopN] = useState(10);
   const [exporting, setExporting] = useState<string | null>(null);
 
-  const fetchInventario = async () => {
-    setLoadingInv(true);
-    setErrorInv('');
-    try {
-      const res = await reportesApi.inventario();
-      setInventario(res.data.data || res.data);
-    } catch {
-      setErrorInv('Error al cargar el reporte de inventario');
-    } finally {
-      setLoadingInv(false);
-    }
-  };
+  const invQuery = useReporteInventario(activeTab === 'inventario');
+  const topQuery = useReporteMasVendidos(topN, activeTab === 'mas-vendidos');
+  const ventasQuery = useReporteVentas(activeTab === 'ventas');
 
-  const fetchMasVendidos = async () => {
-    setLoadingTop(true);
-    setErrorTop('');
-    try {
-      const res = await reportesApi.masVendidos({ top: topN });
-      setMasVendidos(res.data.data || res.data);
-    } catch {
-      setErrorTop('Error al cargar el reporte de más vendidos');
-    } finally {
-      setLoadingTop(false);
-    }
-  };
+  const inventario = invQuery.data ?? null;
+  const masVendidos = topQuery.data ?? null;
+  const ventas = ventasQuery.data ?? null;
 
-  const fetchVentas = async () => {
-    setLoadingVentas(true);
-    setErrorVentas('');
-    try {
-      const res = await reportesApi.ventas();
-      setVentas(res.data.data || res.data);
-    } catch {
-      setErrorVentas('Error al cargar el reporte de ventas');
-    } finally {
-      setLoadingVentas(false);
-    }
-  };
+  const loadingInv = invQuery.isLoading;
+  const loadingTop = topQuery.isLoading;
+  const loadingVentas = ventasQuery.isLoading;
 
-  useEffect(() => {
-    if (activeTab === 'inventario' && !inventario && !loadingInv) fetchInventario();
-    if (activeTab === 'mas-vendidos' && !masVendidos && !loadingTop) fetchMasVendidos();
-    if (activeTab === 'ventas' && !ventas && !loadingVentas) fetchVentas();
-  }, [activeTab]);
+  const errorInv = invQuery.isError ? 'Error al cargar el reporte de inventario' : '';
+  const errorTop = topQuery.isError ? 'Error al cargar el reporte de más vendidos' : '';
+  const errorVentas = ventasQuery.isError ? 'Error al cargar el reporte de ventas' : '';
 
-  useEffect(() => {
-    if (masVendidos) fetchMasVendidos();
-  }, [topN]);
+  const fetchInventario = () => invQuery.refetch();
+  const fetchMasVendidos = () => topQuery.refetch();
+  const fetchVentas = () => ventasQuery.refetch();
 
   const handleExport = async (tipo: 'inventario' | 'ventas', format: 'excel' | 'pdf') => {
     const key = `${tipo}-${format}`;

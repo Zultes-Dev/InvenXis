@@ -141,15 +141,16 @@ invenxis/
 ├── config/                   # Django settings, routing, WSGI/ASGI
 ├── productos/                # Core app: models, serializers, API views
 │   └── management/commands/seed_data.py
-├── templates/                # Server-rendered Django templates
+├── templates/                # Django auth/admin templates (SPA-first, sin SSR)
 │   ├── admin/
-│   ├── productos/
 │   └── registration/
 ├── frontend/                 # React 19 + Vite + TypeScript SPA
 │   └── src/
 │       ├── api/              # axios client + JWT refresh interceptor
 │       ├── components/       # layout + UI primitives
 │       ├── contexts/         # auth + theme providers
+│       ├── hooks/            # TanStack Query hooks (useApi)
+│       ├── lib/              # QueryClient + helpers
 │       ├── pages/            # login, dashboard, CRUD screens
 │       └── types/            # TypeScript domain types
 ├── docs/

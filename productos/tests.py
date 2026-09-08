@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
 
 from .models import Producto, Proveedor, Pedido, DetallePedido, Venta, DetalleVenta
@@ -119,32 +119,6 @@ class PedidoModelTests(TestCase):
         pedido.calcular_total()
         self.assertEqual(pedido.total, Decimal('7500000.00'))
         self.assertEqual(pedido.detalles.count(), 1)
-
-
-# =============================================================================
-# VIEW TESTS (Template-based)
-# =============================================================================
-
-class ViewBaseTests(TestCase):
-    """Pruebas de vistas web con autenticación."""
-
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user('testuser', 'test@test.com', 'testpass123')
-        self.client.login(username='testuser', password='testpass123')
-
-    def test_login_required(self):
-        """Verificar que las vistas requieren autenticación."""
-        self.client.logout()
-        urls = [
-            'productos:dashboard',
-            'productos:lista',
-            'productos:lista_proveedores',
-            'productos:reportes',
-        ]
-        for url_name in urls:
-            response = self.client.get(reverse(url_name))
-            self.assertEqual(response.status_code, 302, f'{url_name} no redirige a login')
 
 
 # =============================================================================

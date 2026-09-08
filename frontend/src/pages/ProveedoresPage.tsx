@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { proveedoresApi } from '../api';
+import { useProveedores, useProveedorMutations } from '../hooks/useApi';
 import type { ProveedorListItem } from '../types/api';
 import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
@@ -35,26 +36,19 @@ const emptyFormData: ProveedorFormData = {
 type FilterEstado = 'todos' | 'activo' | 'inactivo';
 
 export default function ProveedoresPage() {
-  const [proveedores, setProveedores] = useState<ProveedorListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterEstado, setFilterEstado] = useState<FilterEstado>('todos');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<ProveedorFormData>(emptyFormData);
-  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingName, setDeletingName] = useState('');
-  const [deleting, setDeleting] = useState(false);
 
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -66,27 +60,24 @@ export default function ProveedoresPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchProveedores = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params: Record<string, string | number | boolean> = { page, page_size: 15 };
-      if (debouncedSearch) params.search = debouncedSearch;
-      if (filterEstado !== 'todos') params.estado = filterEstado;
-      const res = await proveedoresApi.list(params);
-      setProveedores(res.data.results);
-      setTotalPages(res.data.total_pages);
-      setTotal(res.data.count);
-    } catch {
-      setError('Error al cargar proveedores');
-    } finally {
-      setLoading(false);
-    }
+  const listParams = useMemo(() => {
+    const params: Record<string, string | number | boolean> = { page, page_size: 15 };
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (filterEstado !== 'todos') params.estado = filterEstado;
+    return params;
   }, [page, debouncedSearch, filterEstado]);
 
-  useEffect(() => {
-    fetchProveedores();
-  }, [fetchProveedores]);
+  const proveedoresQuery = useProveedores(listParams);
+  const proveedores = proveedoresQuery.data?.results ?? [];
+  const totalPages = proveedoresQuery.data?.total_pages ?? 1;
+  const total = proveedoresQuery.data?.count ?? 0;
+  const loading = proveedoresQuery.isLoading;
+  const fetching = proveedoresQuery.isFetching;
+  const error = proveedoresQuery.isError ? 'Error al cargar proveedores' : null;
+
+  const mutations = useProveedorMutations();
+  const saving = mutations.create.isPending || mutations.update.isPending;
+  const deleting = mutations.remove.isPending;
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
@@ -136,7 +127,7 @@ export default function ProveedoresPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formData.razon_social.trim()) {
       setFormError('La razón social es obligatoria');
       return;
@@ -145,32 +136,35 @@ export default function ProveedoresPage() {
       setFormError('El NIT es obligatorio');
       return;
     }
-    setSaving(true);
     setFormError(null);
-    try {
-      const payload = {
-        razon_social: formData.razon_social,
-        nit: formData.nit,
-        categoria: formData.categoria,
-        contacto: formData.contacto,
-        telefono: formData.telefono,
-        email: formData.email,
-        direccion: formData.direccion,
-        estado: formData.estado,
-      };
-      if (editingId) {
-        await proveedoresApi.update(editingId, payload);
-        showNotification('success', 'Proveedor actualizado exitosamente');
-      } else {
-        await proveedoresApi.create(payload);
-        showNotification('success', 'Proveedor creado exitosamente');
-      }
+    const payload = {
+      razon_social: formData.razon_social,
+      nit: formData.nit,
+      categoria: formData.categoria,
+      contacto: formData.contacto,
+      telefono: formData.telefono,
+      email: formData.email,
+      direccion: formData.direccion,
+      estado: formData.estado,
+    };
+    const onSuccess = (message: string) => {
+      showNotification('success', message);
       setModalOpen(false);
-      fetchProveedores();
-    } catch {
-      setFormError('Error al guardar el proveedor');
-    } finally {
-      setSaving(false);
+    };
+    const onError = () => setFormError('Error al guardar el proveedor');
+    if (editingId) {
+      mutations.update.mutate(
+        { id: editingId, payload },
+        {
+          onSuccess: () => onSuccess('Proveedor actualizado exitosamente'),
+          onError,
+        },
+      );
+    } else {
+      mutations.create.mutate(payload, {
+        onSuccess: () => onSuccess('Proveedor creado exitosamente'),
+        onError,
+      });
     }
   };
 
@@ -180,20 +174,16 @@ export default function ProveedoresPage() {
     setDeleteModalOpen(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (deletingId === null) return;
-    setDeleting(true);
-    try {
-      await proveedoresApi.delete(deletingId);
-      showNotification('success', 'Proveedor eliminado exitosamente');
-      setDeleteModalOpen(false);
-      setDeletingId(null);
-      fetchProveedores();
-    } catch {
-      showNotification('error', 'Error al eliminar el proveedor');
-    } finally {
-      setDeleting(false);
-    }
+    mutations.remove.mutate(deletingId, {
+      onSuccess: () => {
+        showNotification('success', 'Proveedor eliminado exitosamente');
+        setDeleteModalOpen(false);
+        setDeletingId(null);
+      },
+      onError: () => showNotification('error', 'Error al eliminar el proveedor'),
+    });
   };
 
   const columns = [
@@ -341,7 +331,7 @@ export default function ProveedoresPage() {
         {error ? (
           <div className="p-6 text-center">
             <p className="text-red-500 text-sm">{error}</p>
-            <Button variant="secondary" size="sm" className="mt-3" onClick={fetchProveedores}>
+            <Button variant="secondary" size="sm" className="mt-3" onClick={() => proveedoresQuery.refetch()}>
               Reintentar
             </Button>
           </div>
@@ -351,7 +341,7 @@ export default function ProveedoresPage() {
               columns={columns}
               data={proveedores}
               keyExtractor={(item) => item.id}
-              loading={loading}
+              loading={loading || fetching}
               emptyMessage="No se encontraron proveedores"
             />
             {totalPages > 1 && (
